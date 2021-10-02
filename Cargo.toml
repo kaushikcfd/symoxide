@@ -1,0 +1,13 @@
+[package]
+name = "expression_trees"
+version = "0.1.0"
+authors = ["Kaushik Kulkarni <kaushikcfd@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "expression_trees"
+path = "src/lib.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
