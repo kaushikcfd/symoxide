@@ -20,6 +20,7 @@
 
 use std::fmt;
 use std::ops;
+use std::collections::HashMap;
 use crate::utils::ToExpression;
 
 
@@ -30,6 +31,8 @@ pub enum Expression {
     Variable(String),
     Sum(Box<Expression>, Box<Expression>),
     Product(Box<Expression>, Box<Expression>),
+    Subscript(String, Vec<Box<Expression>>),
+    Call(String, Vec<Box<Expression>>, HashMap<String, Expression>),
 }
 
 
@@ -42,6 +45,16 @@ impl fmt::Display for Expression {
             Expression::Variable(x) => write!(f, "Variable(\"{}\")", x),
             Expression::Sum(e1, e2) => write!(f, "Sum({}, {})", e1, e2),
             Expression::Product(e1, e2) => write!(f, "Product({}, {})", e1, e2),
+            Expression::Subscript(v, indices) => write!(f,
+                                                        "Subscript({}, {})",
+                                                        v,
+                                                        ("[".to_string()
+                                                         + &indices
+                                                           .into_iter()
+                                                           .map(|idx| idx.to_string())
+                                                           .collect::<Vec<String>>()
+                                                           .join(", ")
+                                                         + "]")),
             _ => panic!("Not Implemented!")
         }
     }
@@ -55,7 +68,7 @@ impl ops::Add for Expression {
     type Output = Expression;
 
     fn add(self, _rhs: Expression) -> Expression {
-        return Expression::Sum(Box::new(self), Box::new(_rhs));
+        return Expression::Sum(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -63,7 +76,7 @@ impl ops::Add<i32> for Expression {
     type Output = Expression;
 
     fn add(self, _rhs: i32) -> Expression {
-        return Expression::Sum(Box::new(self), Box::new(_rhs.to_expr()));
+        return Expression::Sum(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -72,7 +85,7 @@ impl ops::Add<f32> for Expression {
     type Output = Expression;
 
     fn add(self, _rhs: f32) -> Expression {
-        return Expression::Sum(Box::new(self), Box::new(_rhs.to_expr()));
+        return Expression::Sum(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -81,7 +94,7 @@ impl ops::Add<f64> for Expression {
     type Output = Expression;
 
     fn add(self, _rhs: f64) -> Expression {
-        return Expression::Sum(Box::new(self), Box::new(_rhs.to_expr()));
+        return Expression::Sum(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -89,7 +102,7 @@ impl ops::Add<Expression> for i32 {
     type Output = Expression;
 
     fn add(self, _rhs: Expression) -> Expression {
-        return Expression::Sum(Box::new(self.to_expr()), Box::new(_rhs));
+        return Expression::Sum(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -97,7 +110,7 @@ impl ops::Add<Expression> for f32 {
     type Output = Expression;
 
     fn add(self, _rhs: Expression) -> Expression {
-        return Expression::Sum(Box::new(self.to_expr()), Box::new(_rhs));
+        return Expression::Sum(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -105,7 +118,7 @@ impl ops::Add<Expression> for f64 {
     type Output = Expression;
 
     fn add(self, _rhs: Expression) -> Expression {
-        return Expression::Sum(Box::new(self.to_expr()), Box::new(_rhs));
+        return Expression::Sum(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -117,7 +130,7 @@ impl ops::Mul for Expression {
     type Output = Expression;
 
     fn mul(self, _rhs: Expression) -> Expression {
-        return Expression::Product(Box::new(self), Box::new(_rhs));
+        return Expression::Product(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -125,7 +138,7 @@ impl ops::Mul<f32> for Expression {
     type Output = Expression;
 
     fn mul(self, _rhs: f32) -> Expression {
-        return Expression::Product(Box::new(self), Box::new(_rhs.to_expr()));
+        return Expression::Product(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -133,7 +146,7 @@ impl ops::Mul<i32> for Expression {
     type Output = Expression;
 
     fn mul(self, _rhs: i32) -> Expression {
-        return Expression::Product(Box::new(self), Box::new(_rhs.to_expr()));
+        return Expression::Product(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -141,7 +154,7 @@ impl ops::Mul<f64> for Expression {
     type Output = Expression;
 
     fn mul(self, _rhs: f64) -> Expression {
-        return Expression::Product(Box::new(self), Box::new(_rhs.to_expr()));
+        return Expression::Product(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -150,7 +163,7 @@ impl ops::Mul<Expression> for i32 {
     type Output = Expression;
 
     fn mul(self, _rhs: Expression) -> Expression {
-        return Expression::Product(Box::new(self.to_expr()), Box::new(_rhs));
+        return Expression::Product(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -158,7 +171,7 @@ impl ops::Mul<Expression> for f32 {
     type Output = Expression;
 
     fn mul(self, _rhs: Expression) -> Expression {
-        return Expression::Product(Box::new(self.to_expr()), Box::new(_rhs));
+        return Expression::Product(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -166,7 +179,7 @@ impl ops::Mul<Expression> for f64 {
     type Output = Expression;
 
     fn mul(self, _rhs: Expression) -> Expression {
-        return Expression::Product(Box::new(self.to_expr()), Box::new(_rhs));
+        return Expression::Product(self.to_expr(), _rhs.to_expr());
     }
 }
 
@@ -194,8 +207,18 @@ impl ops::Neg for Expression {
 /// ```
 /// use expression_trees::var;
 ///
-/// let x = var("X".to_string());
+/// let x = var("x");
 /// ```
 pub fn var(x: &str) -> Expression {
     return Expression::Variable(x.to_string());
+}
+
+
+pub fn subscript(x: &str, index: Vec<impl ToExpression>) -> Expression {
+    return Expression::Subscript(x.to_string(),
+                                 index
+                                 .into_iter()
+                                 .map(|x| x.to_expr())
+                                 .collect::<Vec<Box<Expression>>>());
+
 }
