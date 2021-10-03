@@ -19,6 +19,9 @@
 // SOFTWARE.
 
 use std::fmt;
+use std::ops;
+use crate::utils::ToExpression;
+
 
 pub enum Expression {
     I32(i32),
@@ -37,10 +40,152 @@ impl fmt::Display for Expression {
             Expression::F32(x) => write!(f, "F32({})", x),
             Expression::F64(x) => write!(f, "F64({})", x),
             Expression::Variable(x) => write!(f, "Variable(\"{}\")", x),
+            Expression::Sum(e1, e2) => write!(f, "Sum({}, {})", e1, e2),
+            Expression::Product(e1, e2) => write!(f, "Product({}, {})", e1, e2),
             _ => panic!("Not Implemented!")
         }
     }
 }
+
+// --- Operators support
+
+// {{{ Add
+
+impl ops::Add for Expression {
+    type Output = Expression;
+
+    fn add(self, _rhs: Expression) -> Expression {
+        return Expression::Sum(Box::new(self), Box::new(_rhs));
+    }
+}
+
+impl ops::Add<i32> for Expression {
+    type Output = Expression;
+
+    fn add(self, _rhs: i32) -> Expression {
+        return Expression::Sum(Box::new(self), Box::new(_rhs.to_expr()));
+    }
+}
+
+
+impl ops::Add<f32> for Expression {
+    type Output = Expression;
+
+    fn add(self, _rhs: f32) -> Expression {
+        return Expression::Sum(Box::new(self), Box::new(_rhs.to_expr()));
+    }
+}
+
+
+impl ops::Add<f64> for Expression {
+    type Output = Expression;
+
+    fn add(self, _rhs: f64) -> Expression {
+        return Expression::Sum(Box::new(self), Box::new(_rhs.to_expr()));
+    }
+}
+
+impl ops::Add<Expression> for i32 {
+    type Output = Expression;
+
+    fn add(self, _rhs: Expression) -> Expression {
+        return Expression::Sum(Box::new(self.to_expr()), Box::new(_rhs));
+    }
+}
+
+impl ops::Add<Expression> for f32 {
+    type Output = Expression;
+
+    fn add(self, _rhs: Expression) -> Expression {
+        return Expression::Sum(Box::new(self.to_expr()), Box::new(_rhs));
+    }
+}
+
+impl ops::Add<Expression> for f64 {
+    type Output = Expression;
+
+    fn add(self, _rhs: Expression) -> Expression {
+        return Expression::Sum(Box::new(self.to_expr()), Box::new(_rhs));
+    }
+}
+
+// }}}
+
+// {{{ Mul
+
+impl ops::Mul for Expression {
+    type Output = Expression;
+
+    fn mul(self, _rhs: Expression) -> Expression {
+        return Expression::Product(Box::new(self), Box::new(_rhs));
+    }
+}
+
+impl ops::Mul<f32> for Expression {
+    type Output = Expression;
+
+    fn mul(self, _rhs: f32) -> Expression {
+        return Expression::Product(Box::new(self), Box::new(_rhs.to_expr()));
+    }
+}
+
+impl ops::Mul<i32> for Expression {
+    type Output = Expression;
+
+    fn mul(self, _rhs: i32) -> Expression {
+        return Expression::Product(Box::new(self), Box::new(_rhs.to_expr()));
+    }
+}
+
+impl ops::Mul<f64> for Expression {
+    type Output = Expression;
+
+    fn mul(self, _rhs: f64) -> Expression {
+        return Expression::Product(Box::new(self), Box::new(_rhs.to_expr()));
+    }
+}
+
+
+impl ops::Mul<Expression> for i32 {
+    type Output = Expression;
+
+    fn mul(self, _rhs: Expression) -> Expression {
+        return Expression::Product(Box::new(self.to_expr()), Box::new(_rhs));
+    }
+}
+
+impl ops::Mul<Expression> for f32 {
+    type Output = Expression;
+
+    fn mul(self, _rhs: Expression) -> Expression {
+        return Expression::Product(Box::new(self.to_expr()), Box::new(_rhs));
+    }
+}
+
+impl ops::Mul<Expression> for f64 {
+    type Output = Expression;
+
+    fn mul(self, _rhs: Expression) -> Expression {
+        return Expression::Product(Box::new(self.to_expr()), Box::new(_rhs));
+    }
+}
+
+// }}}
+
+
+// {{{ Neg
+
+impl ops::Neg for Expression {
+    type Output = Expression;
+
+    fn neg(self) -> Expression {
+        // This shouldn't override for scalars, as that's the job for downstream
+        // visitors
+        return -1 * self;
+    }
+}
+
+// }}}
 
 // ---- Helper creation routines
 /// Instantiate a new `Expression::Variable`
@@ -51,6 +196,6 @@ impl fmt::Display for Expression {
 ///
 /// let x = var("X".to_string());
 /// ```
-pub fn var(x: String) -> Expression {
-    return Expression::Variable(x);
+pub fn var(x: &str) -> Expression {
+    return Expression::Variable(x.to_string());
 }
