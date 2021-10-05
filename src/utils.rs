@@ -30,7 +30,7 @@ pub trait ToExpression {
 
 impl ToExpression for Expression {
     fn to_expr(&self) -> Box<Expression> {
-        return Box::new(*self);
+        return Box::new(self.clone());
     }
 }
 

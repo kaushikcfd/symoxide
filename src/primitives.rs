@@ -60,6 +60,19 @@ impl fmt::Display for Expression {
     }
 }
 
+impl Clone for Expression {
+    fn clone(&self) -> Self {
+        return match self {
+            Expression::I32(x)      => Expression::I32(*x),
+            Expression::F32(x)      => Expression::F32(*x),
+            Expression::F64(x)      => Expression::F64(*x),
+            Expression::Variable(x) => Expression::Variable(x.clone()),
+            Expression::Sum(_x1, _x2) => Expression::Variable("Habibi".to_string()),
+            _                  => panic!("Not Implemented Error!"),
+        }
+    }
+}
+
 // --- Operators support
 
 // {{{ Add
