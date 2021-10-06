@@ -21,6 +21,7 @@
 use std::fmt;
 use std::ops;
 use std::collections::HashMap;
+use std::iter::FromIterator;
 use crate::utils::ToExpression;
 
 
@@ -31,8 +32,8 @@ pub enum Expression {
     Variable(String),
     Sum(Box<Expression>, Box<Expression>),
     Product(Box<Expression>, Box<Expression>),
-    Subscript(String, Vec<Box<Expression>>),
-    Call(String, Vec<Box<Expression>>, HashMap<String, Expression>),
+    Subscript(String, Vec<Expression>),
+    Call(String, Vec<Expression>, HashMap<String, Expression>),
 }
 
 
@@ -46,16 +47,23 @@ impl fmt::Display for Expression {
             Expression::Sum(e1, e2) => write!(f, "Sum({}, {})", e1, e2),
             Expression::Product(e1, e2) => write!(f, "Product({}, {})", e1, e2),
             Expression::Subscript(v, indices) => write!(f,
-                                                        "Subscript({}, {})",
+                                                        "Subscript({}, [{}])",
                                                         v,
-                                                        ("[".to_string()
-                                                         + &indices
-                                                           .into_iter()
-                                                           .map(|idx| idx.to_string())
-                                                           .collect::<Vec<String>>()
-                                                           .join(", ")
-                                                         + "]")),
-            _ => panic!("Not Implemented!")
+                                                        indices
+                                                        .into_iter()
+                                                        .map(|idx| idx.to_string())
+                                                        .collect::<Vec<String>>()
+                                                        .join(", ")),
+
+            Expression::Call(v, args, kwargs) if kwargs.is_empty() => write!(f,"Call({}, ({}))",
+                                                                             v,
+                                                                             args
+                                                                             .into_iter()
+                                                                             .map(|idx| idx.to_string())
+                                                                             .collect::<Vec<String>>()
+                                                                             .join(", ")),
+            Expression::Call(_, args, _) if args.is_empty() => todo!("Call with only kwargs"),
+            Expression::Call(_, _, _) => todo!("Call with kwargs"),
         }
     }
 }
@@ -67,10 +75,16 @@ impl Clone for Expression {
             Expression::F32(x)      => Expression::F32(*x),
             Expression::F64(x)      => Expression::F64(*x),
             Expression::Variable(x) => Expression::Variable(x.clone()),
-            Expression::Sum(_x1, _x2) => Expression::Variable("Habibi".to_string()),
-            _                  => panic!("Not Implemented Error!"),
+            Expression::Sum(e1, e2) => Expression::Sum(e1.clone(), e2.clone()),
+            Expression::Product(e1, e2) => Expression::Product(e1.clone(), e2.clone()),
+            Expression::Subscript(v, indices) => Expression::Subscript(v.clone(),
+                                                                       indices.clone()),
+            Expression::Call(name, args, kwargs) => Expression::Call(name.clone(),
+                                                                     args.clone(),
+                                                                     kwargs.clone()),
         }
     }
+
 }
 
 // --- Operators support
@@ -231,7 +245,21 @@ pub fn subscript(x: &str, index: Vec<impl ToExpression>) -> Expression {
     return Expression::Subscript(x.to_string(),
                                  index
                                  .into_iter()
-                                 .map(|x| x.to_expr())
-                                 .collect::<Vec<Box<Expression>>>());
+                                 .map(|x| *x.to_expr())
+                                 .collect::<Vec<Expression>>());
 
 }
+
+
+pub fn call(name: &str, args: Vec<impl ToExpression>, kwargs: Option<HashMap<&str, impl ToExpression>>) -> Expression {
+    return Expression::Call(name.to_string(),
+                            args
+                            .into_iter()
+                            .map(|x| *x.to_expr())
+                            .collect::<Vec<Expression>>(),
+                            HashMap::from_iter(kwargs
+                                               .unwrap_or(HashMap::new())
+                                               .iter()
+                                               .map(|(k,v)| (k.to_string(), *v.to_expr()))));
+}
+
