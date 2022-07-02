@@ -18,27 +18,67 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+pub trait Expression {}
+
 pub struct Variable {
     pub name: String,
 }
 
-pub struct Sum<T1, T2> {
+pub struct Sum<T1: Expression, T2: Expression> {
     pub l: T1,
     pub r: T2,
 }
 
 
-pub struct Product<T1, T2> {
+pub struct Product<T1: Expression, T2: Expression> {
     pub l: T1,
     pub r: T2,
 }
 
 
-pub struct Divide<T1, T2> {
+pub struct Divide<T1: Expression, T2: Expression> {
     pub l: T1,
     pub r: T2,
 }
 
+// }}}
+
+
+// {{{ implementing Expression traits for our primitives
+
+impl Expression for Variable {
+}
+
+impl<T1: Expression, T2: Expression> Expression for Sum<T1, T2> {
+}
+
+impl<T1: Expression, T2: Expression> Expression for Product<T1, T2> {
+}
+
+impl<T1: Expression, T2: Expression> Expression for Divide<T1, T2> {
+}
+
+// }}}
+
+
+// {{{ implement traits for Rust Scalars
+
+impl Expression for u8 {}
+impl Expression for u16 {}
+impl Expression for u32 {}
+impl Expression for u64 {}
+impl Expression for u128 {}
+
+
+impl Expression for i8 {}
+impl Expression for i16 {}
+impl Expression for i32 {}
+impl Expression for i64 {}
+impl Expression for i128 {}
+
+
+impl Expression for f32 {}
+impl Expression for f64 {}
 
 // }}}
 

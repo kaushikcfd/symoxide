@@ -1,5 +1,4 @@
-
-// Copyright (c) 2021 Kaushik Kulkarni
+// Copyright (c) 2022 Kaushik Kulkarni
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,35 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use std::fmt;
-use crate::primitives::{Expression, Variable, Sum, Product, Divide};
 
+use crate::primitives::{Expression, Sum, Variable};
+use std::ops;
 
-impl fmt::Display for Variable {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Variable(\"{}\")", self.name)
-    }
-}
-
-
-impl<T1: fmt::Display+Expression, T2: fmt::Display+Expression> fmt::Display for Sum<T1, T2>
+// FIXME: This is definitely the wrong approach. The correct approach would be using macros
+impl<T2: Expression> ops::Add<T2> for Variable
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Sum({}, {})", self.l, self.r)
+    type Output = Sum<Variable, T2>;
+    fn add(self, _rhs: T2) -> Sum<Variable, T2> {
+        Sum {l: self, r: _rhs}
     }
-}
 
-
-impl<T1: fmt::Display+Expression, T2: fmt::Display+Expression> fmt::Display for Product<T1, T2>
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Product({}, {})", self.l, self.r)
-    }
-}
-
-impl<T1: fmt::Display+Expression, T2: fmt::Display+Expression> fmt::Display for Divide<T1, T2>
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Divide({}, {})", self.l, self.r)
-    }
 }
