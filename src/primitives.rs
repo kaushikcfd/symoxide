@@ -18,217 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use std::fmt;
-use std::ops;
-use std::collections::HashMap;
-use std::iter::FromIterator;
-use crate::utils::ToExpression;
+pub struct Variable {
+    pub name: String,
+}
 
-
-pub enum Expression {
-    I32(i32),
-    F32(f32),
-    F64(f64),
-    Variable(String),
-    Sum(Box<Expression>, Box<Expression>),
-    Product(Box<Expression>, Box<Expression>),
-    Subscript(String, Vec<Expression>),
-    Call(String, Vec<Expression>, HashMap<String, Expression>),
+pub struct Sum<T1, T2> {
+    pub l: T1,
+    pub r: T2,
 }
 
 
-impl fmt::Display for Expression {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Expression::I32(x) => write!(f, "I32({})", x),
-            Expression::F32(x) => write!(f, "F32({})", x),
-            Expression::F64(x) => write!(f, "F64({})", x),
-            Expression::Variable(x) => write!(f, "Variable(\"{}\")", x),
-            Expression::Sum(e1, e2) => write!(f, "Sum({}, {})", e1, e2),
-            Expression::Product(e1, e2) => write!(f, "Product({}, {})", e1, e2),
-            Expression::Subscript(v, indices) => write!(f,
-                                                        "Subscript({}, [{}])",
-                                                        v,
-                                                        indices
-                                                        .into_iter()
-                                                        .map(|idx| idx.to_string())
-                                                        .collect::<Vec<String>>()
-                                                        .join(", ")),
-
-            Expression::Call(v, args, kwargs) if kwargs.is_empty() => write!(f,"Call({}, ({}))",
-                                                                             v,
-                                                                             args
-                                                                             .into_iter()
-                                                                             .map(|idx| idx.to_string())
-                                                                             .collect::<Vec<String>>()
-                                                                             .join(", ")),
-            Expression::Call(_, args, _) if args.is_empty() => todo!("Call with only kwargs"),
-            Expression::Call(_, _, _) => todo!("Call with kwargs"),
-        }
-    }
-}
-
-impl Clone for Expression {
-    fn clone(&self) -> Self {
-        return match self {
-            Expression::I32(x)      => Expression::I32(*x),
-            Expression::F32(x)      => Expression::F32(*x),
-            Expression::F64(x)      => Expression::F64(*x),
-            Expression::Variable(x) => Expression::Variable(x.clone()),
-            Expression::Sum(e1, e2) => Expression::Sum(e1.clone(), e2.clone()),
-            Expression::Product(e1, e2) => Expression::Product(e1.clone(), e2.clone()),
-            Expression::Subscript(v, indices) => Expression::Subscript(v.clone(),
-                                                                       indices.clone()),
-            Expression::Call(name, args, kwargs) => Expression::Call(name.clone(),
-                                                                     args.clone(),
-                                                                     kwargs.clone()),
-        }
-    }
-
-}
-
-// --- Operators support
-
-// {{{ Add
-
-impl ops::Add for Expression {
-    type Output = Expression;
-
-    fn add(self, _rhs: Expression) -> Expression {
-        return Expression::Sum(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Add<i32> for Expression {
-    type Output = Expression;
-
-    fn add(self, _rhs: i32) -> Expression {
-        return Expression::Sum(self.to_expr(), _rhs.to_expr());
-    }
+pub struct Product<T1, T2> {
+    pub l: T1,
+    pub r: T2,
 }
 
 
-impl ops::Add<f32> for Expression {
-    type Output = Expression;
-
-    fn add(self, _rhs: f32) -> Expression {
-        return Expression::Sum(self.to_expr(), _rhs.to_expr());
-    }
+pub struct Divide<T1, T2> {
+    pub l: T1,
+    pub r: T2,
 }
 
-
-impl ops::Add<f64> for Expression {
-    type Output = Expression;
-
-    fn add(self, _rhs: f64) -> Expression {
-        return Expression::Sum(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Add<Expression> for i32 {
-    type Output = Expression;
-
-    fn add(self, _rhs: Expression) -> Expression {
-        return Expression::Sum(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Add<Expression> for f32 {
-    type Output = Expression;
-
-    fn add(self, _rhs: Expression) -> Expression {
-        return Expression::Sum(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Add<Expression> for f64 {
-    type Output = Expression;
-
-    fn add(self, _rhs: Expression) -> Expression {
-        return Expression::Sum(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-// }}}
-
-// {{{ Mul
-
-impl ops::Mul for Expression {
-    type Output = Expression;
-
-    fn mul(self, _rhs: Expression) -> Expression {
-        return Expression::Product(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Mul<f32> for Expression {
-    type Output = Expression;
-
-    fn mul(self, _rhs: f32) -> Expression {
-        return Expression::Product(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Mul<i32> for Expression {
-    type Output = Expression;
-
-    fn mul(self, _rhs: i32) -> Expression {
-        return Expression::Product(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Mul<f64> for Expression {
-    type Output = Expression;
-
-    fn mul(self, _rhs: f64) -> Expression {
-        return Expression::Product(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-
-impl ops::Mul<Expression> for i32 {
-    type Output = Expression;
-
-    fn mul(self, _rhs: Expression) -> Expression {
-        return Expression::Product(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Mul<Expression> for f32 {
-    type Output = Expression;
-
-    fn mul(self, _rhs: Expression) -> Expression {
-        return Expression::Product(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-impl ops::Mul<Expression> for f64 {
-    type Output = Expression;
-
-    fn mul(self, _rhs: Expression) -> Expression {
-        return Expression::Product(self.to_expr(), _rhs.to_expr());
-    }
-}
-
-// }}}
-
-
-// {{{ Neg
-
-impl ops::Neg for Expression {
-    type Output = Expression;
-
-    fn neg(self) -> Expression {
-        // This shouldn't override for scalars, as that's the job for downstream
-        // visitors
-        return -1 * self;
-    }
-}
 
 // }}}
 
 // ---- Helper creation routines
-/// Instantiate a new `Expression::Variable`
+/// Instantiate a new `Variable`
 ///
 /// # Example
 /// ```
@@ -236,30 +51,6 @@ impl ops::Neg for Expression {
 ///
 /// let x = var("x");
 /// ```
-pub fn var(x: &str) -> Expression {
-    return Expression::Variable(x.to_string());
+pub fn var(x: &str) -> Variable {
+    return Variable {name: x.to_string()};
 }
-
-
-pub fn subscript(x: &str, index: Vec<impl ToExpression>) -> Expression {
-    return Expression::Subscript(x.to_string(),
-                                 index
-                                 .into_iter()
-                                 .map(|x| *x.to_expr())
-                                 .collect::<Vec<Expression>>());
-
-}
-
-
-pub fn call(name: &str, args: Vec<impl ToExpression>, kwargs: Option<HashMap<&str, impl ToExpression>>) -> Expression {
-    return Expression::Call(name.to_string(),
-                            args
-                            .into_iter()
-                            .map(|x| *x.to_expr())
-                            .collect::<Vec<Expression>>(),
-                            HashMap::from_iter(kwargs
-                                               .unwrap_or(HashMap::new())
-                                               .iter()
-                                               .map(|(k,v)| (k.to_string(), *v.to_expr()))));
-}
-

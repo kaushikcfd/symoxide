@@ -1,3 +1,4 @@
+
 // Copyright (c) 2021 Kaushik Kulkarni
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,39 +19,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::primitives::Expression;
+use std::fmt;
+use crate::primitives as prim;
 
 
-// {{{ ToExpression
-
-pub trait ToExpression {
-    fn to_expr(&self) -> Box<Expression>;
-}
-
-
-impl ToExpression for Expression {
-    fn to_expr(&self) -> Box<Expression> {
-        return Box::new(self.clone());
+impl fmt::Display for prim::Variable {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Variable(\"{}\")", self.name)
     }
 }
 
 
-impl ToExpression for i32 {
-    fn to_expr(&self) -> Box<Expression> {
-        return Box::new(Expression::I32(*self));
+impl<T1: fmt::Display, T2: fmt::Display> fmt::Display for prim::Sum<T1, T2>
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Sum({}, {})", self.l, self.r)
     }
 }
-
-impl ToExpression for f32 {
-    fn to_expr(&self) -> Box<Expression> {
-        return Box::new(Expression::F32(*self));
-    }
-}
-
-impl ToExpression for f64 {
-    fn to_expr(&self) -> Box<Expression> {
-        return Box::new(Expression::F64(*self));
-    }
-}
-
-// }}}
