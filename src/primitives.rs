@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+use crate::derive_expression;
+
 pub trait Expression {}
 
 pub struct Variable {
@@ -46,8 +48,7 @@ pub struct Divide<T1: Expression, T2: Expression> {
 
 // {{{ implementing Expression traits for our primitives
 
-impl Expression for Variable {
-}
+derive_expression!(Variable);
 
 impl<T1: Expression, T2: Expression> Expression for Sum<T1, T2> {
 }
