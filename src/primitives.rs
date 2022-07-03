@@ -49,15 +49,9 @@ pub struct Divide<T1: Expression, T2: Expression> {
 // {{{ implementing Expression traits for our primitives
 
 derive_expression!(Variable);
-
-impl<T1: Expression, T2: Expression> Expression for Sum<T1, T2> {
-}
-
-impl<T1: Expression, T2: Expression> Expression for Product<T1, T2> {
-}
-
-impl<T1: Expression, T2: Expression> Expression for Divide<T1, T2> {
-}
+derive_expression!(Sum<T1: Expression, T2: Expression>);
+derive_expression!(Product<T1: Expression, T2: Expression>);
+derive_expression!(Divide<T1: Expression, T2: Expression>);
 
 // }}}
 
@@ -68,15 +62,11 @@ impl Expression for u8 {}
 impl Expression for u16 {}
 impl Expression for u32 {}
 impl Expression for u64 {}
-impl Expression for u128 {}
-
 
 impl Expression for i8 {}
 impl Expression for i16 {}
 impl Expression for i32 {}
 impl Expression for i64 {}
-impl Expression for i128 {}
-
 
 impl Expression for f32 {}
 impl Expression for f64 {}

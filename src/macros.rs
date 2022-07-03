@@ -20,24 +20,59 @@
 
 
 #[macro_export]
-macro_rules! derive_expression {
-    ($name: ident)=>{
-        impl Expression for $name {}
-        impl<_ExprT: Expression> std::ops::Add<_ExprT> for $name {
-            type Output=Sum<$name, _ExprT>;
-            fn add(self, _rhs: _ExprT) -> Self::Output{
-                $crate::primitives::Sum {l: self, r: _rhs}
-            }
-        }
-    };
-    // TODO: Generalize it as: https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=e18c5d3415162283ff3ed0480205e5e2
-    ($name: ident, $bound1: path, $bound2: path)=>{
-        impl<_T1: $bound1, _T2: $bound2> Expression for $name<_T1, _T2> {}
-        impl<_ExprT: Expression, _T1: $bound1, _T2: $bound2> std::ops::Add<_ExprT> for $name<_T1, _T2> {
-            type Output=Sum<$name<_T1, _T2>, _ExprT>;
-            fn add(self, _rhs: _ExprT) -> Self::Output{
+macro_rules! _implement_binop_w_scalar {
+    ($scalarT: ty, $binopName: ident, $name: ident, $( $parname: ident: $bound: path ) , *)=>{
+        impl<$($parname: $bound) , *> std::ops::$binopName<$name< $($parname) , *>> for $scalarT  {
+            type Output=Sum<$scalarT, $name< $($parname) , * >>;
+            fn add(self, _rhs: $name< $($parname) , * >) -> Self::Output{
                 $crate::primitives::Sum {l: self, r: _rhs}
             }
         }
     };
 }
+
+#[macro_export]
+macro_rules! _implement_binop_w_all_scalars {
+    ($binopName: ident, $name: ident, $( $parname: ident: $bound: path ) , *)=>{
+        $crate::_implement_binop_w_scalar!(u8, $binopName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(u16, $binopName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(u32, $binopName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(u64, $binopName, $name, $( $parname: $bound ) , *);
+
+        $crate::_implement_binop_w_scalar!(i8, $binopName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(i16, $binopName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(i32, $binopName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(i64, $binopName, $name, $( $parname: $bound ) , *);
+
+        $crate::_implement_binop_w_scalar!(f32, $binopName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(f64, $binopName, $name, $( $parname: $bound ) , *);
+
+    };
+}
+
+
+#[macro_export]
+macro_rules! _derive_expression_internal {
+    ($name: ident, $( $parname: ident: $bound: path ) , *)=>{
+        impl <$( $parname: $bound) , *> $crate::primitives::Expression for $name<$($parname) , *> {}
+        impl<_ExprT: $crate::primitives::Expression, $($parname: $bound) , *> std::ops::Add<_ExprT> for $name< $($parname) , * >  {
+            type Output=Sum<$name< $($parname) , * >, _ExprT>;
+            fn add(self, _rhs: _ExprT) -> Self::Output{
+                $crate::primitives::Sum {l: self, r: _rhs}
+            }
+        }
+        $crate::_implement_binop_w_all_scalars!(Add, $name, $( $parname: $bound ) , *);
+    };
+}
+
+#[macro_export]
+macro_rules! derive_expression {
+    ($name: ident)=>{
+        $crate::_derive_expression_internal!($name,);
+    };
+    ($name: ident< $par1: ident: $bound1: path, $par2: ident: $bound2: path >)=>{
+        $crate::_derive_expression_internal!($name, _T1: $bound1, _T2: $bound2);
+    };
+}
+
+
