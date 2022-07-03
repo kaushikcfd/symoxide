@@ -21,32 +21,40 @@
 
 #[macro_export]
 macro_rules! _implement_binop_w_scalar {
-    ($scalarT: ty, $binopName: ident, $name: ident, $( $parname: ident: $bound: path ) , *)=>{
+    ($scalarT: ty, $binopName: ident, $binopMethodName: ident, $exprName:ident, $name: ident, $( $parname: ident: $bound: path ) , *)=>{
         impl<$($parname: $bound) , *> std::ops::$binopName<$name< $($parname) , *>> for $scalarT  {
-            type Output=Sum<$scalarT, $name< $($parname) , * >>;
-            fn add(self, _rhs: $name< $($parname) , * >) -> Self::Output{
-                $crate::primitives::Sum {l: self, r: _rhs}
+            type Output=$exprName<$scalarT, $name< $($parname) , * >>;
+            fn $binopMethodName(self, _rhs: $name< $($parname) , * >) -> Self::Output{
+                $crate::primitives::$exprName {l: self, r: _rhs}
             }
         }
     };
 }
 
 #[macro_export]
-macro_rules! _implement_binop_w_all_scalars {
-    ($binopName: ident, $name: ident, $( $parname: ident: $bound: path ) , *)=>{
-        $crate::_implement_binop_w_scalar!(u8, $binopName, $name, $( $parname: $bound ) , *);
-        $crate::_implement_binop_w_scalar!(u16, $binopName, $name, $( $parname: $bound ) , *);
-        $crate::_implement_binop_w_scalar!(u32, $binopName, $name, $( $parname: $bound ) , *);
-        $crate::_implement_binop_w_scalar!(u64, $binopName, $name, $( $parname: $bound ) , *);
+macro_rules! _implement_binop {
+    ($binopName: ident, $binopMethodName: ident, $exprName: ident, $name: ident, $( $parname: ident: $bound: path ) , *)=>{
+        // Left Addition
+        impl<_ExprT: $crate::primitives::Expression, $($parname: $bound) , *> std::ops::$binopName<_ExprT> for $name< $($parname) , * >  {
+            type Output=$exprName<$name< $($parname) , * >, _ExprT>;
+            fn $binopMethodName(self, _rhs: _ExprT) -> Self::Output{
+                $crate::primitives::$exprName {l: self, r: _rhs}
+            }
+        }
 
-        $crate::_implement_binop_w_scalar!(i8, $binopName, $name, $( $parname: $bound ) , *);
-        $crate::_implement_binop_w_scalar!(i16, $binopName, $name, $( $parname: $bound ) , *);
-        $crate::_implement_binop_w_scalar!(i32, $binopName, $name, $( $parname: $bound ) , *);
-        $crate::_implement_binop_w_scalar!(i64, $binopName, $name, $( $parname: $bound ) , *);
+        // Right addition
+        $crate::_implement_binop_w_scalar!(u8, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(u16, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(u32, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(u64, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
 
-        $crate::_implement_binop_w_scalar!(f32, $binopName, $name, $( $parname: $bound ) , *);
-        $crate::_implement_binop_w_scalar!(f64, $binopName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(i8, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(i16, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(i32, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(i64, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
 
+        $crate::_implement_binop_w_scalar!(f32, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop_w_scalar!(f64, $binopName, $binopMethodName, $exprName, $name, $( $parname: $bound ) , *);
     };
 }
 
@@ -55,13 +63,9 @@ macro_rules! _implement_binop_w_all_scalars {
 macro_rules! _derive_expression_internal {
     ($name: ident, $( $parname: ident: $bound: path ) , *)=>{
         impl <$( $parname: $bound) , *> $crate::primitives::Expression for $name<$($parname) , *> {}
-        impl<_ExprT: $crate::primitives::Expression, $($parname: $bound) , *> std::ops::Add<_ExprT> for $name< $($parname) , * >  {
-            type Output=Sum<$name< $($parname) , * >, _ExprT>;
-            fn add(self, _rhs: _ExprT) -> Self::Output{
-                $crate::primitives::Sum {l: self, r: _rhs}
-            }
-        }
-        $crate::_implement_binop_w_all_scalars!(Add, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop!(Add, add, Sum, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop!(Mul, mul, Product, $name, $( $parname: $bound ) , *);
+        $crate::_implement_binop!(Div, div, Divide, $name, $( $parname: $bound ) , *);
     };
 }
 
@@ -74,5 +78,3 @@ macro_rules! derive_expression {
         $crate::_derive_expression_internal!($name, _T1: $bound1, _T2: $bound2);
     };
 }
-
-
