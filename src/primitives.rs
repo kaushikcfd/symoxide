@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::derive_expression;
+use std::rc::Rc;
 
 pub trait Expression {}
 
@@ -27,20 +27,20 @@ pub struct Variable {
 }
 
 pub struct Sum<T1: Expression, T2: Expression> {
-    pub l: T1,
-    pub r: T2,
+    pub l: Rc<T1>,
+    pub r: Rc<T2>,
 }
 
 
 pub struct Product<T1: Expression, T2: Expression> {
-    pub l: T1,
-    pub r: T2,
+    pub l: Rc<T1>,
+    pub r: Rc<T2>,
 }
 
 
 pub struct Divide<T1: Expression, T2: Expression> {
-    pub l: T1,
-    pub r: T2,
+    pub l: Rc<T1>,
+    pub r: Rc<T2>,
 }
 
 // }}}
@@ -48,10 +48,14 @@ pub struct Divide<T1: Expression, T2: Expression> {
 
 // {{{ implementing Expression traits for our primitives
 
-derive_expression!(Variable);
-derive_expression!(Sum<T1: Expression, T2: Expression>);
-derive_expression!(Product<T1: Expression, T2: Expression>);
-derive_expression!(Divide<T1: Expression, T2: Expression>);
+impl Expression for Variable {}
+pub fn add<T1: Expression, T2: Expression>(x1: &Rc<T1>, x2: &Rc<T2>) -> Sum<T1, T2>
+{
+    Sum {l: Rc::clone(x1), r: Rc::clone(x2)}
+}
+// derive_expression!(Sum<T1: Expression, T2: Expression>);
+// derive_expression!(Product<T1: Expression, T2: Expression>);
+// derive_expression!(Divide<T1: Expression, T2: Expression>);
 
 // }}}
 
@@ -82,6 +86,6 @@ impl Expression for f64 {}
 ///
 /// let x = var("x");
 /// ```
-pub fn var(x: &str) -> Variable {
-    return Variable {name: x.to_string()};
+pub fn var(x: &str) -> Rc<Variable> {
+    return Rc::new(Variable {name: x.to_string()});
 }
