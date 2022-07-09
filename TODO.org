@@ -1,0 +1,13 @@
+- [X] Move to a struct-based primitive nodes rather than an enum based.
+  - The problem with enum-based node is that it is quite difficult to extend with sub-classes
+  - However, for structs it is as simple as making sure that, probably this needs some scary
+    template-fu, which is not quite bad in itself.
+- [ ] Implement visitors
+- [ ] Implement get_dependencies
+- [ ] Implement substitute
+- [ ] Implement evaluate
+- [ ] Implement Bitwise Operators
+- [ ] Implement out sub-language as the `eval!` macro
+- [ ] Add Continuous Integration
+- [ ] Better name?
+- [ ] Make public
