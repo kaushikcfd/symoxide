@@ -10,4 +10,5 @@
 - [ ] Implement out sub-language as the `eval!` macro
 - [ ] Add Continuous Integration
 - [ ] Better name?
+- [ ] Start working on a design doc
 - [ ] Make public
