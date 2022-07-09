@@ -1,3 +1,4 @@
+
 // Copyright (c) 2021 Kaushik Kulkarni
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,60 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use std::rc::Rc;
 
-pub trait Expression {}
-pub trait Scalar{}
-
-pub struct Variable {
-    pub name: String,
-}
-
-pub struct Sum<T1: Expression, T2: Expression> {
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
+use crate::define_binary_op;
 
 
-pub struct Product<T1: Expression, T2: Expression> {
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
-
-
-pub struct Divide<T1: Expression, T2: Expression> {
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
-
-// }}}
-
-
-// {{{ implementing Expression traits for our primitives
-
-impl Expression for Variable {}
-impl<T1: Expression, T2: Expression> Expression for Sum<T1, T2> {}
-impl<T1: Expression, T2: Expression> Expression for Product<T1, T2> {}
-impl<T1: Expression, T2: Expression> Expression for Divide<T1, T2> {}
-
-// }}}
-
-
-// {{{ implement traits for Rust Scalars
-
-impl Scalar for u8 {}
-impl Scalar for u16 {}
-impl Scalar for u32 {}
-impl Scalar for u64 {}
-
-impl Scalar for i8 {}
-impl Scalar for i16 {}
-impl Scalar for i32 {}
-impl Scalar for i64 {}
-
-impl Scalar for f32 {}
-impl Scalar for f64 {}
-
-impl<ScalarT: Scalar> Expression for ScalarT {}
-
-// }}}
+define_binary_op!(add, Sum);
+define_binary_op!(mul, Product);
+define_binary_op!(div, Divide);

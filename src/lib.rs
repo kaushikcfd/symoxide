@@ -21,5 +21,10 @@
 
 pub mod primitives;
 pub mod display;
-pub use primitives::{var};
+pub mod operations;
+pub mod builders;
+pub use primitives::{Expression};
+pub use operations::{add, mul, div};
+pub use builders::{var};
+pub use macro_defs::{variables};
 pub mod macros;

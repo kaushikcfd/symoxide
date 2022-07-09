@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Kaushik Kulkarni
+// Copyright (c) 2022 Kaushik Kulkarni
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,59 +19,18 @@
 // SOFTWARE.
 
 use std::rc::Rc;
+use crate::primitives::Variable;
 
-pub trait Expression {}
-pub trait Scalar{}
 
-pub struct Variable {
-    pub name: String,
+// ---- Helper creation routines
+/// Instantiate a new `Variable`
+///
+/// # Example
+/// ```
+/// use expression_trees::var;
+///
+/// let x = var("x");
+/// ```
+pub fn var(x: &str) -> Rc<Variable> {
+    return Rc::new(Variable {name: x.to_string()});
 }
-
-pub struct Sum<T1: Expression, T2: Expression> {
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
-
-
-pub struct Product<T1: Expression, T2: Expression> {
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
-
-
-pub struct Divide<T1: Expression, T2: Expression> {
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
-
-// }}}
-
-
-// {{{ implementing Expression traits for our primitives
-
-impl Expression for Variable {}
-impl<T1: Expression, T2: Expression> Expression for Sum<T1, T2> {}
-impl<T1: Expression, T2: Expression> Expression for Product<T1, T2> {}
-impl<T1: Expression, T2: Expression> Expression for Divide<T1, T2> {}
-
-// }}}
-
-
-// {{{ implement traits for Rust Scalars
-
-impl Scalar for u8 {}
-impl Scalar for u16 {}
-impl Scalar for u32 {}
-impl Scalar for u64 {}
-
-impl Scalar for i8 {}
-impl Scalar for i16 {}
-impl Scalar for i32 {}
-impl Scalar for i64 {}
-
-impl Scalar for f32 {}
-impl Scalar for f64 {}
-
-impl<ScalarT: Scalar> Expression for ScalarT {}
-
-// }}}
