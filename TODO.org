@@ -3,6 +3,17 @@
   - However, for structs it is as simple as making sure that, probably this needs some scary
     template-fu, which is not quite bad in itself.
 - [ ] Implement visitors
+  - [ ] IdentityMapper
+  - [ ] IdentityMapperWithContext?
+  - [ ] CombineMapper?
+  - [ ] WalkMapper
+  - [ ] DependencyMapper
+- [ ] Force Expression to be derived from:
+  - ~std::fmt::Display~
+  - ~std::cmp::Eq~
+  - Probably all the mappers that we implement.
+- [ ] Do the Binary Ops _have_ to to "binary", can they instead be rewritten to
+  take arbitraty operands?
 - [ ] Implement get_dependencies
 - [ ] Implement substitute
 - [ ] Implement evaluate
