@@ -27,19 +27,19 @@ pub struct Variable {
     pub name: String,
 }
 
-pub struct Sum<T1: Expression, T2: Expression> {
+pub struct Sum<T1: Expression + ?Sized, T2: Expression +?Sized> {
     pub l: Rc<T1>,
     pub r: Rc<T2>,
 }
 
 
-pub struct Product<T1: Expression, T2: Expression> {
+pub struct Product<T1: Expression + ?Sized, T2: Expression + ?Sized> {
     pub l: Rc<T1>,
     pub r: Rc<T2>,
 }
 
 
-pub struct Divide<T1: Expression, T2: Expression> {
+pub struct Divide<T1: Expression + ?Sized, T2: Expression + ?Sized> {
     pub l: Rc<T1>,
     pub r: Rc<T2>,
 }
@@ -50,9 +50,9 @@ pub struct Divide<T1: Expression, T2: Expression> {
 // {{{ implementing Expression traits for our primitives
 
 impl Expression for Variable {}
-impl<T1: Expression, T2: Expression> Expression for Sum<T1, T2> {}
-impl<T1: Expression, T2: Expression> Expression for Product<T1, T2> {}
-impl<T1: Expression, T2: Expression> Expression for Divide<T1, T2> {}
+impl<T1: Expression + ?Sized, T2: Expression +?Sized> Expression for Sum<T1, T2> {}
+impl<T1: Expression + ?Sized, T2: Expression + ?Sized> Expression for Product<T1, T2> {}
+impl<T1: Expression + ?Sized, T2: Expression + ?Sized> Expression for Divide<T1, T2> {}
 
 // }}}
 
