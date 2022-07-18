@@ -13,6 +13,5 @@ fn main() {
 
     let xpy = add(&x, &y);
     let xpy_copy = xpy.accept(&copier);
-    // TODO: Once Expression to be forced of type Display uncomment the line below.
-    //println!("{}", xpy_copy);
+    println!("{}", xpy_copy);
 }

@@ -30,7 +30,7 @@ impl fmt::Display for Variable {
 }
 
 
-impl<T1: fmt::Display+Expression, T2: fmt::Display+Expression> fmt::Display for Sum<T1, T2>
+impl<T1: Expression + ?Sized, T2: Expression + ?Sized> fmt::Display for Sum<T1, T2>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Sum({}, {})", self.l, self.r)
@@ -38,14 +38,15 @@ impl<T1: fmt::Display+Expression, T2: fmt::Display+Expression> fmt::Display for 
 }
 
 
-impl<T1: fmt::Display+Expression, T2: fmt::Display+Expression> fmt::Display for Product<T1, T2>
+impl<T1: Expression + ?Sized, T2: Expression + ?Sized> fmt::Display for Product<T1, T2>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Product({}, {})", self.l, self.r)
     }
 }
 
-impl<T1: fmt::Display+Expression, T2: fmt::Display+Expression> fmt::Display for Divide<T1, T2>
+
+impl<T1: Expression + ?Sized, T2: Expression + ?Sized> fmt::Display for Divide<T1, T2>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Divide({}, {})", self.l, self.r)

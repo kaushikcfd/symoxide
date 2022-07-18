@@ -19,9 +19,10 @@
 // SOFTWARE.
 
 use std::rc::Rc;
+use std::fmt;
 
-pub trait Expression {}
-pub trait Scalar{}
+pub trait Expression: fmt::Display {}
+pub trait Scalar: fmt::Display{}
 
 pub struct Variable {
     pub name: String,
