@@ -25,18 +25,18 @@ use std::rc::Rc;
 
 
 
-pub trait IdentityMappable: Expression {
-    fn accept<T: IdentityMapper>(&self, mapper: &T) -> Rc<dyn Expression>;
+pub trait IdentityMappable<T: IdentityMapper>: Expression {
+    fn accept(&self, mapper: &T) -> Rc<dyn Expression>;
 }
 
-impl IdentityMappable for Variable{
-    fn accept<T: IdentityMapper>(&self, mapper: &T) -> Rc<dyn Expression> {
+impl<T: IdentityMapper> IdentityMappable<T> for Variable{
+    fn accept(&self, mapper: &T) -> Rc<dyn Expression> {
         mapper.map_variable(self)
     }
 }
 
-impl<T1: IdentityMappable, T2: IdentityMappable> IdentityMappable for Sum<T1, T2> {
-    fn accept<T: IdentityMapper>(&self, mapper: &T) -> Rc<dyn Expression> {
+impl<T1: IdentityMappable<T>, T2: IdentityMappable<T>, T: IdentityMapper> IdentityMappable<T> for Sum<T1, T2> {
+    fn accept(&self, mapper: &T) -> Rc<dyn Expression> {
         mapper.map_sum(self)
     }
 }
@@ -49,7 +49,7 @@ pub trait IdentityMapper: Sized{
         return Rc::new(result);
     }
 
-    fn map_sum<T1: IdentityMappable, T2: IdentityMappable>(&self, expr: &Sum<T1, T2>) -> Rc<dyn Expression>{
+    fn map_sum<T1: IdentityMappable<Self>, T2: IdentityMappable<Self>>(&self, expr: &Sum<T1, T2>) -> Rc<dyn Expression>{
         let rec_l = expr.l.accept(self);
         let rec_r = expr.r.accept(self);
         return Rc::new(Sum {l: rec_l, r: rec_r});

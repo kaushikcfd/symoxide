@@ -3,28 +3,28 @@ use crate::primitives::{Variable, Sum, Expression};
 
 // {{{ FoldMapper
 
-pub trait Foldable: Expression{
-    fn accept<MapperT: FoldMapper>(&self, mapper: &MapperT) -> MapperT::Output;
+pub trait Foldable<MapperT: FoldMapper>: Expression{
+    fn accept(&self, mapper: &MapperT) -> MapperT::Output;
 }
 
-impl Foldable for Variable {
-    fn accept<MapperT: FoldMapper>(&self, mapper: &MapperT) -> MapperT::Output {
+impl<MapperT: FoldMapper> Foldable<MapperT> for Variable {
+    fn accept(&self, mapper: &MapperT) -> MapperT::Output {
         mapper.map_variable(self)
     }
 }
 
-impl<T1: Foldable, T2: Foldable> Foldable for Sum<T1, T2> {
-    fn accept<MapperT: FoldMapper>(&self, mapper: &MapperT) -> MapperT::Output {
+impl<T1: Foldable<MapperT>, T2: Foldable<MapperT>, MapperT: FoldMapper> Foldable<MapperT> for Sum<T1, T2> {
+    fn accept(&self, mapper: &MapperT) -> MapperT::Output {
         mapper.map_sum(self)
     }
 }
 
 
-pub trait FoldMapper {
+pub trait FoldMapper: Sized {
     type Output;
 
     fn map_variable(&self, expr: &Variable) -> Self::Output;
-    fn map_sum<T1: Foldable, T2: Foldable>(&self, expr: &Sum<T1, T2>) -> Self::Output;
+    fn map_sum<T1: Foldable<Self>, T2: Foldable<Self>>(&self, expr: &Sum<T1, T2>) -> Self::Output;
 }
 
 // }}}
