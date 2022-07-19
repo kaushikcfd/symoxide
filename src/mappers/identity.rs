@@ -23,7 +23,7 @@ use crate::primitives::{Expression, Variable, Sum};
 
 use std::rc::Rc;
 
-
+// {{{ IdentityMapper
 
 pub trait IdentityMappable: Expression {
     fn accept<T: IdentityMapper>(&self, mapper: &T) -> Rc<dyn Expression>;
@@ -55,3 +55,45 @@ pub trait IdentityMapper: Sized{
         return Rc::new(Sum {l: rec_l, r: rec_r});
     }
 }
+
+// }}}
+
+
+
+// {{{ IdentityMapperWithContext
+
+pub trait IdentityMappableWithContext: Expression {
+    fn accept<T: IdentityMapperWithContext>(&self, mapper: &T, context: &T::Context) -> Rc<dyn Expression>;
+}
+
+impl IdentityMappableWithContext for Variable{
+    fn accept<T: IdentityMapperWithContext>(&self, mapper: &T, context: &T::Context) -> Rc<dyn Expression> {
+        mapper.map_variable(self, &context)
+    }
+}
+
+impl<T1: IdentityMappableWithContext, T2: IdentityMappableWithContext> IdentityMappableWithContext for Sum<T1, T2> {
+    fn accept<T: IdentityMapperWithContext>(&self, mapper: &T, context: &T::Context) -> Rc<dyn Expression> {
+        mapper.map_sum(self, &context)
+    }
+}
+
+
+pub trait IdentityMapperWithContext: Sized{
+    type Context;
+
+    fn map_variable(&self, expr: &Variable, _context: &Self::Context) -> Rc<dyn Expression>{
+        let result = Variable{name: expr.name.clone()};
+        return Rc::new(result);
+    }
+
+    fn map_sum<T1: IdentityMappableWithContext, T2: IdentityMappableWithContext>(
+            &self, expr: &Sum<T1, T2>, context: &Self::Context
+            ) -> Rc<dyn Expression> {
+        let rec_l = expr.l.accept(self, context);
+        let rec_r = expr.r.accept(self, context);
+        return Rc::new(Sum {l: rec_l, r: rec_r});
+    }
+}
+
+// }}}
