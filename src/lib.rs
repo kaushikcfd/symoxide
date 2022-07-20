@@ -24,6 +24,7 @@ pub mod display;
 pub mod operations;
 pub mod builders;
 pub mod mappers;
+pub mod mapper_impls;
 pub use primitives::{Expression};
 pub use operations::{add, mul, div};
 pub use builders::{var};
