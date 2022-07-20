@@ -2,24 +2,34 @@
   - The problem with enum-based node is that it is quite difficult to extend with sub-classes
   - However, for structs it is as simple as making sure that, probably this needs some scary
     template-fu, which is not quite bad in itself.
-- [ ] Implement visitors
-  - [ ] IdentityMapper
-  - [ ] IdentityMapperWithContext?
-  - [ ] CombineMapper?
-  - [ ] WalkMapper
+- [-] Implement visitors
+  - [X] IdentityMapper
+  - [X] Fold to a different type?
+    - Like a StringifyMapper?
+  - [X] Rewrite IdentityMapper using FoldableMapper?
+    - Tried this and was unsuccessful.
+    - This should mostly be done using macros.
+  - [X] IdentityMapperWithContext
+  - [X] MutIdentityMapper?
+  - [X] CombineMapper
+  - [X] CombineMapperWithContext
+  - [X] WalkMapper
   - [ ] DependencyMapper
-- [ ] Force Expression to be derived from:
-  - ~std::fmt::Display~
-  - ~std::cmp::Eq~
-  - Probably all the mappers that we implement.
+- [-] Force Expression to be derived from:
+  - [X]  ~std::fmt::Display~
+  - [X] ~std::cmp::Eq~
+  - [ ] Probably all the mappers that we implement.
+- [ ] String parsing. (It's probably time to 
 - [ ] Do the Binary Ops _have_ to to "binary", can they instead be rewritten to
-  take arbitraty operands?
+  take arbitrary number of operands like pymbolic?
+- Idea: We should probably implement something like IdentityMappers as derive macros.
 - [ ] Implement get_dependencies
 - [ ] Implement substitute
 - [ ] Implement evaluate
 - [ ] Implement Bitwise Operators
 - [ ] Implement out sub-language as the `eval!` macro
 - [ ] Add Continuous Integration
-- [ ] Better name?
+- [ ] ~expression_trees~ is a terrible name, probably rename it to something else?
+  - [ ] Rename to SymOxide
 - [ ] Start working on a design doc
 - [ ] Make public
