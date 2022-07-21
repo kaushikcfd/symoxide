@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 
-use crate::primitives::{Expression, Variable, Sum};
+use crate::primitives::{Expression, Variable, BinaryOp};
 
 // {{{ WalkMapper
 
@@ -33,9 +33,9 @@ impl WalkMappable for Variable{
     }
 }
 
-impl<T1: WalkMappable, T2: WalkMappable> WalkMappable for Sum<T1, T2> {
+impl<T1: WalkMappable, T2: WalkMappable> WalkMappable for BinaryOp<T1, T2> {
     fn accept<T: WalkMapper>(&self, mapper: &T) {
-        mapper.map_sum(self)
+        mapper.map_binary_op(self)
     }
 }
 
@@ -45,8 +45,8 @@ pub trait WalkMapper: Sized{
     fn map_variable(&self, _expr: &Variable) {
     }
 
-    fn map_sum<T1: WalkMappable, T2: WalkMappable>(
-        &self, expr: &Sum<T1, T2>) {
+    fn map_binary_op<T1: WalkMappable, T2: WalkMappable>(
+        &self, expr: &BinaryOp<T1, T2>) {
         expr.l.accept(self);
         expr.r.accept(self);
     }
@@ -68,9 +68,9 @@ impl WalkMappableWithContext for Variable{
     }
 }
 
-impl<T1: WalkMappableWithContext, T2: WalkMappableWithContext> WalkMappableWithContext for Sum<T1, T2> {
+impl<T1: WalkMappableWithContext, T2: WalkMappableWithContext> WalkMappableWithContext for BinaryOp<T1, T2> {
     fn accept<T: WalkMapperWithContext>(&self, mapper: &T, context: &T::Context) {
-        mapper.map_sum(self, &context)
+        mapper.map_binary_op(self, &context)
     }
 }
 
@@ -81,8 +81,8 @@ pub trait WalkMapperWithContext: Sized{
     fn map_variable(&self, _expr: &Variable, _context: &Self::Context) {
     }
 
-    fn map_sum<T1: WalkMappableWithContext, T2: WalkMappableWithContext>(
-            &self, expr: &Sum<T1, T2>, context: &Self::Context
+    fn map_binary_op<T1: WalkMappableWithContext, T2: WalkMappableWithContext>(
+            &self, expr: &BinaryOp<T1, T2>, context: &Self::Context
     ) {
         expr.l.accept(self, context);
         expr.r.accept(self, context);
@@ -105,9 +105,9 @@ impl MutWalkMappable for Variable{
     }
 }
 
-impl<T1: MutWalkMappable, T2: MutWalkMappable> MutWalkMappable for Sum<T1, T2> {
+impl<T1: MutWalkMappable, T2: MutWalkMappable> MutWalkMappable for BinaryOp<T1, T2> {
     fn accept<T: MutWalkMapper>(&self, mapper: &mut T) {
-        mapper.map_sum(self)
+        mapper.map_binary_op(self)
     }
 }
 
@@ -117,8 +117,8 @@ pub trait MutWalkMapper: Sized{
     fn map_variable(&mut self, _expr: &Variable) {
     }
 
-    fn map_sum<T1: MutWalkMappable, T2: MutWalkMappable>(
-        &mut self, expr: &Sum<T1, T2>) {
+    fn map_binary_op<T1: MutWalkMappable, T2: MutWalkMappable>(
+        &mut self, expr: &BinaryOp<T1, T2>) {
         expr.l.accept(self);
         expr.r.accept(self);
     }

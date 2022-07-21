@@ -1,5 +1,5 @@
 use expression_trees::mappers::fold::{FoldMapper, Foldable};
-use expression_trees::primitives::{Variable, Expression, Sum};
+use expression_trees::primitives::{Variable, Expression, BinaryOp};
 use expression_trees::{variables, add};
 use std::rc::Rc;
 
@@ -17,10 +17,10 @@ impl FoldMapper for Renamer {
         Rc::new(Variable  {name: new_name.to_string()})
     }
 
-    fn map_sum<T1: Foldable, T2: Foldable>(&self, expr: &Sum<T1, T2>) -> Rc<dyn Expression>{
+    fn map_binary_op<T1: Foldable, T2: Foldable>(&self, expr: &BinaryOp<T1, T2>) -> Rc<dyn Expression>{
         let rec_l = expr.l.accept(self);
         let rec_r = expr.r.accept(self);
-        return Rc::new(Sum {l: rec_l, r: rec_r});
+        return Rc::new(BinaryOp {op_type: expr.op_type, l: rec_l, r: rec_r});
     }
 }
 

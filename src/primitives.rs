@@ -24,23 +24,20 @@ use std::fmt;
 pub trait Expression: fmt::Display {}
 pub trait Scalar: fmt::Display{}
 
+#[derive(Copy, Clone)]
+pub enum BinaryOpType {
+    Sum,
+    Product,
+    Divide,
+    FloorDiv,
+}
+
 pub struct Variable {
     pub name: String,
 }
 
-pub struct Sum<T1: Expression + ?Sized, T2: Expression +?Sized> {
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
-
-
-pub struct Product<T1: Expression + ?Sized, T2: Expression + ?Sized> {
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
-
-
-pub struct Divide<T1: Expression + ?Sized, T2: Expression + ?Sized> {
+pub struct BinaryOp<T1: Expression + ?Sized, T2: Expression +?Sized> {
+    pub op_type: BinaryOpType,
     pub l: Rc<T1>,
     pub r: Rc<T2>,
 }
@@ -51,9 +48,7 @@ pub struct Divide<T1: Expression + ?Sized, T2: Expression + ?Sized> {
 // {{{ implementing Expression traits for our primitives
 
 impl Expression for Variable {}
-impl<T1: Expression + ?Sized, T2: Expression +?Sized> Expression for Sum<T1, T2> {}
-impl<T1: Expression + ?Sized, T2: Expression + ?Sized> Expression for Product<T1, T2> {}
-impl<T1: Expression + ?Sized, T2: Expression + ?Sized> Expression for Divide<T1, T2> {}
+impl<T1: Expression + ?Sized, T2: Expression +?Sized> Expression for BinaryOp<T1, T2> {}
 
 // }}}
 

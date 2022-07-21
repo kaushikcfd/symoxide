@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 
-use crate::primitives::{Expression, Variable, Sum};
+use crate::primitives::{Expression, Variable, BinaryOp};
 
 
 // {{{ CombineMapper
@@ -34,9 +34,9 @@ impl CombineMappable for Variable{
     }
 }
 
-impl<T1: CombineMappable, T2: CombineMappable> CombineMappable for Sum<T1, T2> {
+impl<T1: CombineMappable, T2: CombineMappable> CombineMappable for BinaryOp<T1, T2> {
     fn accept<T: CombineMapper>(&self, mapper: &T) -> T::Output {
-        mapper.map_sum(self)
+        mapper.map_binary_op(self)
     }
 }
 
@@ -48,7 +48,7 @@ pub trait CombineMapper: Sized{
 
     fn map_variable(&self, expr: &Variable) -> Self::Output;
 
-    fn map_sum<T1: CombineMappable, T2: CombineMappable>(&self, expr: &Sum<T1, T2>)
+    fn map_binary_op<T1: CombineMappable, T2: CombineMappable>(&self, expr: &BinaryOp<T1, T2>)
                                                          -> Self::Output {
         self.combine(&[expr.l.accept(self), expr.r.accept(self)])
     }
@@ -70,9 +70,9 @@ impl CombineMappableWithContext for Variable{
     }
 }
 
-impl<T1: CombineMappableWithContext, T2: CombineMappableWithContext> CombineMappableWithContext for Sum<T1, T2> {
+impl<T1: CombineMappableWithContext, T2: CombineMappableWithContext> CombineMappableWithContext for BinaryOp<T1, T2> {
     fn accept<T: CombineMapperWithContext>(&self, mapper: &T, context: &T::Context) -> T::Output {
-        mapper.map_sum(self, &context)
+        mapper.map_binary_op(self, &context)
     }
 }
 
@@ -85,8 +85,8 @@ pub trait CombineMapperWithContext: Sized{
 
     fn map_variable(&self, expr: &Variable, _context: &Self::Context) -> Self::Output;
 
-    fn map_sum<T1: CombineMappableWithContext, T2: CombineMappableWithContext>(
-            &self, expr: &Sum<T1, T2>, context: &Self::Context
+    fn map_binary_op<T1: CombineMappableWithContext, T2: CombineMappableWithContext>(
+            &self, expr: &BinaryOp<T1, T2>, context: &Self::Context
     ) -> Self::Output {
         self.combine(&[expr.l.accept(self, &context), expr.r.accept(self, &context)])
     }

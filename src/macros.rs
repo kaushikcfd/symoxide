@@ -24,10 +24,12 @@ macro_rules! define_binary_op {
         pub fn $fnName<T1: $crate::Expression, T2: $crate::Expression>(
             x1: &std::rc::Rc<T1>,
             x2: &std::rc::Rc<T2>
-        ) -> std::rc::Rc<$crate::primitives::$exprName<T1, T2>> {
+        ) -> std::rc::Rc<$crate::primitives::BinaryOp<T1, T2>> {
             std::rc::Rc::new(
-                $crate::primitives::$exprName {l: std::rc::Rc::clone(x1),
-                                               r: std::rc::Rc::clone(x2)}
+                $crate::primitives::BinaryOp {
+                    op_type: $crate::primitives::BinaryOpType::$exprName,
+                    l: std::rc::Rc::clone(x1),
+                    r: std::rc::Rc::clone(x2)}
             )
         }
     }

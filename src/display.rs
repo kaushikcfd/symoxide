@@ -20,7 +20,20 @@
 // SOFTWARE.
 
 use std::fmt;
-use crate::primitives::{Expression, Variable, Sum, Product, Divide};
+use crate::primitives::{Expression, Variable, BinaryOp, BinaryOpType};
+
+
+impl fmt::Display for BinaryOpType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let name = match self {
+            BinaryOpType::Sum     => "Sum",
+            BinaryOpType::Product => "Product",
+            BinaryOpType::Divide  => "Divide",
+            _                     => {panic!();}
+        };
+        write!(f, "{}", name)
+    }
+}
 
 
 impl fmt::Display for Variable {
@@ -30,25 +43,9 @@ impl fmt::Display for Variable {
 }
 
 
-impl<T1: Expression + ?Sized, T2: Expression + ?Sized> fmt::Display for Sum<T1, T2>
+impl<T1: Expression + ?Sized, T2: Expression + ?Sized> fmt::Display for BinaryOp<T1, T2>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Sum({}, {})", self.l, self.r)
-    }
-}
-
-
-impl<T1: Expression + ?Sized, T2: Expression + ?Sized> fmt::Display for Product<T1, T2>
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Product({}, {})", self.l, self.r)
-    }
-}
-
-
-impl<T1: Expression + ?Sized, T2: Expression + ?Sized> fmt::Display for Divide<T1, T2>
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Divide({}, {})", self.l, self.r)
+        write!(f, "{}({}, {})", self.op_type, self.l, self.r)
     }
 }

@@ -14,7 +14,7 @@
   - [X] CombineMapper
   - [X] CombineMapperWithContext
   - [X] WalkMapper
-  - [ ] DependencyMapper
+  - [X] DependencyMapper
 - [-] Force Expression to be derived from:
   - [X]  ~std::fmt::Display~
   - [X] ~std::cmp::Eq~

@@ -1,4 +1,4 @@
-use crate::primitives::{Variable, Sum, Expression};
+use crate::primitives::{Variable, BinaryOp, Expression};
 
 
 // {{{ FoldMapper
@@ -13,9 +13,9 @@ impl Foldable for Variable {
     }
 }
 
-impl<T1: Foldable, T2: Foldable> Foldable for Sum<T1, T2> {
+impl<T1: Foldable, T2: Foldable> Foldable for BinaryOp<T1, T2> {
     fn accept<MapperT: FoldMapper>(&self, mapper: &MapperT) -> MapperT::Output {
-        mapper.map_sum(self)
+        mapper.map_binary_op(self)
     }
 }
 
@@ -24,7 +24,7 @@ pub trait FoldMapper: Sized {
     type Output;
 
     fn map_variable(&self, expr: &Variable) -> Self::Output;
-    fn map_sum<T1: Foldable, T2: Foldable>(&self, expr: &Sum<T1, T2>) -> Self::Output;
+    fn map_binary_op<T1: Foldable, T2: Foldable>(&self, expr: &BinaryOp<T1, T2>) -> Self::Output;
 }
 
 // }}}
@@ -42,9 +42,9 @@ impl FoldableWithContext for Variable {
     }
 }
 
-impl<T1: FoldableWithContext, T2: FoldableWithContext> FoldableWithContext for Sum<T1, T2> {
+impl<T1: FoldableWithContext, T2: FoldableWithContext> FoldableWithContext for BinaryOp<T1, T2> {
     fn accept<MapperT: FoldMapperWithContext>(&self, mapper: &MapperT, context: &MapperT::Context) -> MapperT::Output {
-        mapper.map_sum(self, &context)
+        mapper.map_binary_op(self, &context)
     }
 }
 
@@ -54,7 +54,7 @@ pub trait FoldMapperWithContext {
     type Output;
 
     fn map_variable(&self, expr: &Variable, context: &Self::Context) -> Self::Output;
-    fn map_sum<T1: FoldableWithContext, T2: FoldableWithContext>(&self, expr: &Sum<T1, T2>, context: &Self::Context) -> Self::Output;
+    fn map_binary_op<T1: FoldableWithContext, T2: FoldableWithContext>(&self, expr: &BinaryOp<T1, T2>, context: &Self::Context) -> Self::Output;
 }
 
 // }}}

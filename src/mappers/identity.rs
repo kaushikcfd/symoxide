@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 
-use crate::primitives::{Expression, Variable, Sum};
+use crate::primitives::{Expression, Variable, BinaryOp};
 
 use std::rc::Rc;
 
@@ -35,9 +35,9 @@ impl IdentityMappable for Variable{
     }
 }
 
-impl<T1: IdentityMappable, T2: IdentityMappable> IdentityMappable for Sum<T1, T2> {
+impl<T1: IdentityMappable, T2: IdentityMappable> IdentityMappable for BinaryOp<T1, T2> {
     fn accept<T: IdentityMapper>(&self, mapper: &T) -> Rc<dyn Expression> {
-        mapper.map_sum(self)
+        mapper.map_binary_op(self)
     }
 }
 
@@ -49,10 +49,10 @@ pub trait IdentityMapper: Sized{
         return Rc::new(result);
     }
 
-    fn map_sum<T1: IdentityMappable, T2: IdentityMappable>(&self, expr: &Sum<T1, T2>) -> Rc<dyn Expression>{
+    fn map_binary_op<T1: IdentityMappable, T2: IdentityMappable>(&self, expr: &BinaryOp<T1, T2>) -> Rc<dyn Expression>{
         let rec_l = expr.l.accept(self);
         let rec_r = expr.r.accept(self);
-        return Rc::new(Sum {l: rec_l, r: rec_r});
+        return Rc::new(BinaryOp {op_type: expr.op_type, l: rec_l, r: rec_r});
     }
 }
 
@@ -72,9 +72,9 @@ impl IdentityMappableWithContext for Variable{
     }
 }
 
-impl<T1: IdentityMappableWithContext, T2: IdentityMappableWithContext> IdentityMappableWithContext for Sum<T1, T2> {
+impl<T1: IdentityMappableWithContext, T2: IdentityMappableWithContext> IdentityMappableWithContext for BinaryOp<T1, T2> {
     fn accept<T: IdentityMapperWithContext>(&self, mapper: &T, context: &T::Context) -> Rc<dyn Expression> {
-        mapper.map_sum(self, &context)
+        mapper.map_binary_op(self, &context)
     }
 }
 
@@ -87,12 +87,12 @@ pub trait IdentityMapperWithContext: Sized{
         return Rc::new(result);
     }
 
-    fn map_sum<T1: IdentityMappableWithContext, T2: IdentityMappableWithContext>(
-            &self, expr: &Sum<T1, T2>, context: &Self::Context
+    fn map_binary_op<T1: IdentityMappableWithContext, T2: IdentityMappableWithContext>(
+            &self, expr: &BinaryOp<T1, T2>, context: &Self::Context
             ) -> Rc<dyn Expression> {
         let rec_l = expr.l.accept(self, context);
         let rec_r = expr.r.accept(self, context);
-        return Rc::new(Sum {l: rec_l, r: rec_r});
+        return Rc::new(BinaryOp {op_type: expr.op_type, l: rec_l, r: rec_r});
     }
 }
 
