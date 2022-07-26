@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 use std::rc::Rc;
-use crate::primitives::Variable;
+use crate::Expression;
 
 
 // ---- Helper creation routines
@@ -31,6 +31,6 @@ use crate::primitives::Variable;
 ///
 /// let x = var("x");
 /// ```
-pub fn var(x: &str) -> Rc<Variable> {
-    return Rc::new(Variable {name: x.to_string()});
+pub fn var(x: &str) -> Rc<Expression> {
+    return Rc::new(Expression::Variable(x.to_string()));
 }

@@ -19,10 +19,33 @@
 // SOFTWARE.
 
 use std::rc::Rc;
-use std::fmt;
 
-pub trait Expression: fmt::Display {}
-pub trait Scalar: fmt::Display{}
+
+#[derive(Copy, Clone)]
+pub enum ScalarT {
+    U8(u8),
+    U16(u16),
+    U32(u32),
+    U64(u64),
+
+    I8(i8),
+    I16(i16),
+    I32(i32),
+    I64(i64),
+
+    F32(f32),
+    F64(f64),
+}
+
+
+pub enum Expression {
+    Variable(String),
+    BinaryOp(Rc<Expression>, BinaryOpType, Rc<Expression>),
+    Scalar(ScalarT),
+}
+
+
+
 
 #[derive(Copy, Clone)]
 pub enum BinaryOpType {
@@ -31,43 +54,5 @@ pub enum BinaryOpType {
     Divide,
     FloorDiv,
 }
-
-pub struct Variable {
-    pub name: String,
-}
-
-pub struct BinaryOp<T1: Expression + ?Sized, T2: Expression +?Sized> {
-    pub op_type: BinaryOpType,
-    pub l: Rc<T1>,
-    pub r: Rc<T2>,
-}
-
-// }}}
-
-
-// {{{ implementing Expression traits for our primitives
-
-impl Expression for Variable {}
-impl<T1: Expression + ?Sized, T2: Expression +?Sized> Expression for BinaryOp<T1, T2> {}
-
-// }}}
-
-
-// {{{ implement traits for Rust Scalars
-
-impl Scalar for u8 {}
-impl Scalar for u16 {}
-impl Scalar for u32 {}
-impl Scalar for u64 {}
-
-impl Scalar for i8 {}
-impl Scalar for i16 {}
-impl Scalar for i32 {}
-impl Scalar for i64 {}
-
-impl Scalar for f32 {}
-impl Scalar for f64 {}
-
-impl<ScalarT: Scalar> Expression for ScalarT {}
 
 // }}}

@@ -20,7 +20,7 @@
 // SOFTWARE.
 
 use std::fmt;
-use crate::primitives::{Expression, Variable, BinaryOp, BinaryOpType};
+use crate::{Expression, BinaryOpType, ScalarT};
 
 
 impl fmt::Display for BinaryOpType {
@@ -36,16 +36,33 @@ impl fmt::Display for BinaryOpType {
 }
 
 
-impl fmt::Display for Variable {
+impl fmt::Display for ScalarT {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Variable(\"{}\")", self.name)
+        let val = match self {
+            ScalarT::U8(x)  => x.to_string(),
+            ScalarT::U16(x) => x.to_string(),
+            ScalarT::U32(x) => x.to_string(),
+            ScalarT::U64(x) => x.to_string(),
+
+            ScalarT::I8(x)  => x.to_string(),
+            ScalarT::I16(x) => x.to_string(),
+            ScalarT::I32(x) => x.to_string(),
+            ScalarT::I64(x) => x.to_string(),
+
+            ScalarT::F32(x) => x.to_string(),
+            ScalarT::F64(x) => x.to_string(),
+        };
+        write!(f, "{}", val)
     }
 }
 
 
-impl<T1: Expression + ?Sized, T2: Expression + ?Sized> fmt::Display for BinaryOp<T1, T2>
-{
+impl fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}({}, {})", self.op_type, self.l, self.r)
+        match self {
+            Expression::Variable(name) => write!(f, "Variable(\"{}\")", name),
+            Expression::BinaryOp(l, op, r) => write!(f, "{}({}, {})", op, l, r),
+            Expression::Scalar(s) => write!(f, "{}", s),
+        }
     }
 }

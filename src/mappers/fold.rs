@@ -1,30 +1,23 @@
-use crate::primitives::{Variable, BinaryOp, Expression};
+use crate::primitives::{BinaryOpType, Expression, ScalarT};
 
 
 // {{{ FoldMapper
 
-pub trait Foldable: Expression{
-    fn accept<MapperT: FoldMapper>(&self, mapper: &MapperT) -> MapperT::Output;
-}
-
-impl Foldable for Variable {
-    fn accept<MapperT: FoldMapper>(&self, mapper: &MapperT) -> MapperT::Output {
-        mapper.map_variable(self)
-    }
-}
-
-impl<T1: Foldable, T2: Foldable> Foldable for BinaryOp<T1, T2> {
-    fn accept<MapperT: FoldMapper>(&self, mapper: &MapperT) -> MapperT::Output {
-        mapper.map_binary_op(self)
-    }
-}
-
-
-pub trait FoldMapper: Sized {
+pub trait FoldMapper {
     type Output;
 
-    fn map_variable(&self, expr: &Variable) -> Self::Output;
-    fn map_binary_op<T1: Foldable, T2: Foldable>(&self, expr: &BinaryOp<T1, T2>) -> Self::Output;
+    fn visit(&self, expr: &Expression) -> Self::Output {
+        match expr {
+            Expression::Variable(name) => self.map_variable(name.to_string()),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+            Expression::Scalar(s)          => self.map_scalar(&s),
+        }
+    }
+
+    fn map_variable(&self, name: String) -> Self::Output;
+    fn map_binary_op(&self, left: &Expression, op: BinaryOpType, right: &Expression) -> Self::Output;
+    fn map_scalar(&self, value: &ScalarT) -> Self::Output;
+
 }
 
 // }}}
@@ -32,29 +25,22 @@ pub trait FoldMapper: Sized {
 
 // {{{ FoldMapperWithContext
 
-pub trait FoldableWithContext: Expression{
-    fn accept<MapperT: FoldMapperWithContext>(&self, mapper: &MapperT, context: &MapperT::Context) -> MapperT::Output;
-}
-
-impl FoldableWithContext for Variable {
-    fn accept<MapperT: FoldMapperWithContext>(&self, mapper: &MapperT, context: &MapperT::Context) -> MapperT::Output {
-        mapper.map_variable(self, &context)
-    }
-}
-
-impl<T1: FoldableWithContext, T2: FoldableWithContext> FoldableWithContext for BinaryOp<T1, T2> {
-    fn accept<MapperT: FoldMapperWithContext>(&self, mapper: &MapperT, context: &MapperT::Context) -> MapperT::Output {
-        mapper.map_binary_op(self, &context)
-    }
-}
-
-
 pub trait FoldMapperWithContext {
     type Context;
     type Output;
 
-    fn map_variable(&self, expr: &Variable, context: &Self::Context) -> Self::Output;
-    fn map_binary_op<T1: FoldableWithContext, T2: FoldableWithContext>(&self, expr: &BinaryOp<T1, T2>, context: &Self::Context) -> Self::Output;
+
+    fn visit(&self, expr: &Expression, context: &Self::Context) -> Self::Output {
+        match expr {
+            Expression::Variable(name)     => self.map_variable(name.to_string(), context),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+            Expression::Scalar(s)          => self.map_scalar(&s, context),
+        }
+    }
+
+    fn map_variable(&self, name: String, context: &Self::Context) -> Self::Output;
+    fn map_binary_op(&self, left: &Expression, op: BinaryOpType, right: &Expression, context: &Self::Context) -> Self::Output;
+    fn map_scalar(&self, value: &ScalarT, context: &Self::Context) -> Self::Output;
 }
 
 // }}}

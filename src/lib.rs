@@ -25,7 +25,7 @@ pub mod operations;
 pub mod builders;
 pub mod mappers;
 pub mod mapper_impls;
-pub use primitives::{Expression};
+pub use primitives::{Expression, BinaryOpType, ScalarT};
 pub use operations::{add, mul, div};
 pub use builders::{var};
 pub use macro_defs::{variables};

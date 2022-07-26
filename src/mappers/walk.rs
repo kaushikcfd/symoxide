@@ -19,36 +19,40 @@
 // SOFTWARE.
 
 
-use crate::primitives::{Expression, Variable, BinaryOp};
+use crate::primitives::{Expression, BinaryOpType, ScalarT};
 
 // {{{ WalkMapper
 
-pub trait WalkMappable: Expression {
-    fn accept<T: WalkMapper>(&self, mapper: &T);
-}
+pub trait WalkMapper{
 
-impl WalkMappable for Variable{
-    fn accept<T: WalkMapper>(&self, mapper: &T) {
-        mapper.map_variable(self)
-    }
-}
-
-impl<T1: WalkMappable, T2: WalkMappable> WalkMappable for BinaryOp<T1, T2> {
-    fn accept<T: WalkMapper>(&self, mapper: &T) {
-        mapper.map_binary_op(self)
-    }
-}
-
-
-pub trait WalkMapper: Sized{
-
-    fn map_variable(&self, _expr: &Variable) {
+    fn should_walk(&self, _expr: &Expression) -> bool {
+        true
     }
 
-    fn map_binary_op<T1: WalkMappable, T2: WalkMappable>(
-        &self, expr: &BinaryOp<T1, T2>) {
-        expr.l.accept(self);
-        expr.r.accept(self);
+    fn post_walk(&self, _expr: &Expression) {
+    }
+
+    fn visit(&self, expr: &Expression) {
+        if self.should_walk(expr) {
+            match expr {
+                Expression::Variable(name) => self.map_variable(name.to_string()),
+                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+                Expression::Scalar(s)          => self.map_scalar(&s),
+            };
+            self.post_walk(expr);
+        }
+    }
+
+    fn map_variable(&self, _name: String) {
+    }
+
+    fn map_scalar(&self, _value: &ScalarT) {
+    }
+
+    fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression)
+    {
+        self.visit(left);
+        self.visit(right);
     }
 }
 
@@ -58,69 +62,78 @@ pub trait WalkMapper: Sized{
 
 // {{{ WalkMapperWithContext
 
-pub trait WalkMappableWithContext: Expression {
-    fn accept<T: WalkMapperWithContext>(&self, mapper: &T, context: &T::Context);
-}
-
-impl WalkMappableWithContext for Variable{
-    fn accept<T: WalkMapperWithContext>(&self, mapper: &T, context: &T::Context) {
-        mapper.map_variable(self, &context)
-    }
-}
-
-impl<T1: WalkMappableWithContext, T2: WalkMappableWithContext> WalkMappableWithContext for BinaryOp<T1, T2> {
-    fn accept<T: WalkMapperWithContext>(&self, mapper: &T, context: &T::Context) {
-        mapper.map_binary_op(self, &context)
-    }
-}
-
-
-pub trait WalkMapperWithContext: Sized{
+pub trait WalkMapperWithContext{
     type Context;
 
-    fn map_variable(&self, _expr: &Variable, _context: &Self::Context) {
+    fn should_walk(&self, _expr: &Expression, _context: &Self::Context) -> bool {
+        true
     }
 
-    fn map_binary_op<T1: WalkMappableWithContext, T2: WalkMappableWithContext>(
-            &self, expr: &BinaryOp<T1, T2>, context: &Self::Context
-    ) {
-        expr.l.accept(self, context);
-        expr.r.accept(self, context);
+    fn post_walk(&self, _expr: &Expression, _context: &Self::Context) {
+    }
+
+    fn visit(&self, expr: &Expression, context: &Self::Context) {
+        if self.should_walk(expr, context) {
+            match expr {
+                Expression::Variable(name) => self.map_variable(name.to_string(), context),
+                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+                Expression::Scalar(s)          => self.map_scalar(&s, context),
+            };
+            self.post_walk(expr, context);
+        }
+    }
+
+
+    fn map_variable(&self, _name: String, _context: &Self::Context) {
+    }
+
+    fn map_scalar(&self, _value: &ScalarT, _context: &Self::Context) {
+    }
+
+    fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression, context: &Self::Context)
+    {
+        self.visit(left, context);
+        self.visit(right, context);
     }
 }
+
 
 // }}}
 
 
-
 // {{{ MutWalkMapper
 
-pub trait MutWalkMappable: Expression {
-    fn accept<T: MutWalkMapper>(&self, mapper: &mut T);
-}
+pub trait MutWalkMapper{
 
-impl MutWalkMappable for Variable{
-    fn accept<T: MutWalkMapper>(&self, mapper: &mut T) {
-        mapper.map_variable(self)
-    }
-}
-
-impl<T1: MutWalkMappable, T2: MutWalkMappable> MutWalkMappable for BinaryOp<T1, T2> {
-    fn accept<T: MutWalkMapper>(&self, mapper: &mut T) {
-        mapper.map_binary_op(self)
-    }
-}
-
-
-pub trait MutWalkMapper: Sized{
-
-    fn map_variable(&mut self, _expr: &Variable) {
+    fn should_walk(&mut self, _expr: &Expression) -> bool {
+        true
     }
 
-    fn map_binary_op<T1: MutWalkMappable, T2: MutWalkMappable>(
-        &mut self, expr: &BinaryOp<T1, T2>) {
-        expr.l.accept(self);
-        expr.r.accept(self);
+    fn post_walk(&mut self, _expr: &Expression) {
+    }
+
+    fn visit(&mut self, expr: &Expression) {
+        if self.should_walk(expr) {
+            match expr {
+                Expression::Variable(name) => self.map_variable(name.to_string()),
+                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+                Expression::Scalar(s)          => self.map_scalar(&s),
+            };
+            self.post_walk(expr);
+        }
+    }
+
+
+    fn map_variable(&mut self, _name: String) {
+    }
+
+    fn map_scalar(&mut self, _value: &ScalarT) {
+    }
+
+    fn map_binary_op(&mut self, left: &Expression, _op: BinaryOpType, right: &Expression)
+    {
+        self.visit(left);
+        self.visit(right);
     }
 }
 

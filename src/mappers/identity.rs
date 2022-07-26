@@ -19,80 +19,60 @@
 // SOFTWARE.
 
 
-use crate::primitives::{Expression, Variable, BinaryOp};
-
+use crate::{Expression, BinaryOpType, ScalarT};
 use std::rc::Rc;
+
 
 // {{{ IdentityMapper
 
-pub trait IdentityMappable: Expression {
-    fn accept<T: IdentityMapper>(&self, mapper: &T) -> Rc<dyn Expression>;
-}
-
-impl IdentityMappable for Variable{
-    fn accept<T: IdentityMapper>(&self, mapper: &T) -> Rc<dyn Expression> {
-        mapper.map_variable(self)
-    }
-}
-
-impl<T1: IdentityMappable, T2: IdentityMappable> IdentityMappable for BinaryOp<T1, T2> {
-    fn accept<T: IdentityMapper>(&self, mapper: &T) -> Rc<dyn Expression> {
-        mapper.map_binary_op(self)
-    }
-}
-
-
-pub trait IdentityMapper: Sized{
-
-    fn map_variable(&self, expr: &Variable) -> Rc<dyn Expression>{
-        let result = Variable{name: expr.name.clone()};
-        return Rc::new(result);
+pub trait IdentityMapper {
+    fn visit(&self, expr: &Expression) -> Rc<Expression> {
+        match expr {
+            Expression::Variable(name)     => self.map_variable(name.to_string()),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+            Expression::Scalar(s)          => self.map_scalar(&s),
+        }
     }
 
-    fn map_binary_op<T1: IdentityMappable, T2: IdentityMappable>(&self, expr: &BinaryOp<T1, T2>) -> Rc<dyn Expression>{
-        let rec_l = expr.l.accept(self);
-        let rec_r = expr.r.accept(self);
-        return Rc::new(BinaryOp {op_type: expr.op_type, l: rec_l, r: rec_r});
+    fn map_variable(&self, name: String) -> Rc<Expression> {
+        Rc::new(Expression::Variable(name))
+    }
+
+    fn map_binary_op(&self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>) -> Rc<Expression> {
+        Rc::new(Expression::BinaryOp(self.visit(left), op, self.visit(right)))
+    }
+
+    fn map_scalar(&self, value: &ScalarT) -> Rc<Expression> {
+        Rc::new(Expression::Scalar(value.clone()))
     }
 }
 
 // }}}
 
 
-
 // {{{ IdentityMapperWithContext
 
-pub trait IdentityMappableWithContext: Expression {
-    fn accept<T: IdentityMapperWithContext>(&self, mapper: &T, context: &T::Context) -> Rc<dyn Expression>;
-}
-
-impl IdentityMappableWithContext for Variable{
-    fn accept<T: IdentityMapperWithContext>(&self, mapper: &T, context: &T::Context) -> Rc<dyn Expression> {
-        mapper.map_variable(self, &context)
-    }
-}
-
-impl<T1: IdentityMappableWithContext, T2: IdentityMappableWithContext> IdentityMappableWithContext for BinaryOp<T1, T2> {
-    fn accept<T: IdentityMapperWithContext>(&self, mapper: &T, context: &T::Context) -> Rc<dyn Expression> {
-        mapper.map_binary_op(self, &context)
-    }
-}
-
-
-pub trait IdentityMapperWithContext: Sized{
+pub trait IdentityMapperWithContext {
     type Context;
 
-    fn map_variable(&self, expr: &Variable, _context: &Self::Context) -> Rc<dyn Expression>{
-        let result = Variable{name: expr.name.clone()};
-        return Rc::new(result);
+    fn visit(&self, expr: &Expression, context: &Self::Context) -> Rc<Expression> {
+        match expr {
+            Expression::Variable(name) => self.map_variable(name.to_string(), context),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+            Expression::Scalar(s)          => self.map_scalar(&s, context),
+        }
     }
 
-    fn map_binary_op<T1: IdentityMappableWithContext, T2: IdentityMappableWithContext>(
-            &self, expr: &BinaryOp<T1, T2>, context: &Self::Context
-            ) -> Rc<dyn Expression> {
-        let rec_l = expr.l.accept(self, context);
-        let rec_r = expr.r.accept(self, context);
-        return Rc::new(BinaryOp {op_type: expr.op_type, l: rec_l, r: rec_r});
+    fn map_variable(&self, name: String, _context: &Self::Context) -> Rc<Expression> {
+        Rc::new(Expression::Variable(name))
+    }
+
+    fn map_binary_op(&self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>, context: &Self::Context) -> Rc<Expression> {
+        Rc::new(Expression::BinaryOp(self.visit(left, context), op, self.visit(right, context)))
+    }
+
+    fn map_scalar(&self, value: &ScalarT, _context: &Self::Context) -> Rc<Expression> {
+        Rc::new(Expression::Scalar(value.clone()))
     }
 }
 

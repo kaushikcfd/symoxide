@@ -19,38 +19,29 @@
 // SOFTWARE.
 
 
-use crate::primitives::{Expression, Variable, BinaryOp};
+use crate::{Expression, BinaryOpType, ScalarT};
 
 
 // {{{ CombineMapper
-
-pub trait CombineMappable: Expression {
-    fn accept<T: CombineMapper>(&self, mapper: &T) -> T::Output;
-}
-
-impl CombineMappable for Variable{
-    fn accept<T: CombineMapper>(&self, mapper: &T) -> T::Output {
-        mapper.map_variable(self)
-    }
-}
-
-impl<T1: CombineMappable, T2: CombineMappable> CombineMappable for BinaryOp<T1, T2> {
-    fn accept<T: CombineMapper>(&self, mapper: &T) -> T::Output {
-        mapper.map_binary_op(self)
-    }
-}
-
 
 pub trait CombineMapper: Sized{
     type Output;
 
     fn combine(&self, values: &[Self::Output]) -> Self::Output;
 
-    fn map_variable(&self, expr: &Variable) -> Self::Output;
+    fn visit(&self, expr: &Expression) -> Self::Output {
+        match expr {
+            Expression::Variable(name) => self.map_variable(name.to_string()),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+            Expression::Scalar(s)          => self.map_scalar(&s),
+        }
+    }
 
-    fn map_binary_op<T1: CombineMappable, T2: CombineMappable>(&self, expr: &BinaryOp<T1, T2>)
-                                                         -> Self::Output {
-        self.combine(&[expr.l.accept(self), expr.r.accept(self)])
+    fn map_variable(&self, name: String) -> Self::Output;
+    fn map_scalar(&self, value: &ScalarT) -> Self::Output;
+
+    fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression) -> Self::Output {
+        self.combine(&[self.visit(left), self.visit(right)])
     }
 }
 
@@ -60,35 +51,26 @@ pub trait CombineMapper: Sized{
 
 // {{{ CombineMapperWithContext
 
-pub trait CombineMappableWithContext: Expression {
-    fn accept<T: CombineMapperWithContext>(&self, mapper: &T, context: &T::Context) -> T::Output;
-}
-
-impl CombineMappableWithContext for Variable{
-    fn accept<T: CombineMapperWithContext>(&self, mapper: &T, context: &T::Context) -> T::Output {
-        mapper.map_variable(self, &context)
-    }
-}
-
-impl<T1: CombineMappableWithContext, T2: CombineMappableWithContext> CombineMappableWithContext for BinaryOp<T1, T2> {
-    fn accept<T: CombineMapperWithContext>(&self, mapper: &T, context: &T::Context) -> T::Output {
-        mapper.map_binary_op(self, &context)
-    }
-}
-
-
 pub trait CombineMapperWithContext: Sized{
     type Output;
     type Context;
 
     fn combine(&self, values: &[Self::Output]) -> Self::Output;
 
-    fn map_variable(&self, expr: &Variable, _context: &Self::Context) -> Self::Output;
+    fn visit(&self, expr: &Expression, context: &Self::Context) -> Self::Output {
+        match expr {
+            Expression::Variable(name)     => self.map_variable(name.to_string(), context),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+            Expression::Scalar(s)          => self.map_scalar(&s, context),
+        }
+    }
 
-    fn map_binary_op<T1: CombineMappableWithContext, T2: CombineMappableWithContext>(
-            &self, expr: &BinaryOp<T1, T2>, context: &Self::Context
-    ) -> Self::Output {
-        self.combine(&[expr.l.accept(self, &context), expr.r.accept(self, &context)])
+    fn map_variable(&self, name: String, context: &Self::Context) -> Self::Output;
+    fn map_scalar(&self, value: &ScalarT, context: &Self::Context) -> Self::Output;
+
+    fn map_binary_op(
+        &self, left: &Expression, _op: BinaryOpType, right: &Expression, context: &Self::Context) -> Self::Output {
+        self.combine(&[self.visit(left, context), self.visit(right, context)])
     }
 }
 

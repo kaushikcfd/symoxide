@@ -21,15 +21,16 @@
 #[macro_export]
 macro_rules! define_binary_op {
     ($fnName: ident, $exprName: ident) => {
-        pub fn $fnName<T1: $crate::Expression, T2: $crate::Expression>(
-            x1: &std::rc::Rc<T1>,
-            x2: &std::rc::Rc<T2>
-        ) -> std::rc::Rc<$crate::primitives::BinaryOp<T1, T2>> {
+        pub fn $fnName(
+            x1: &std::rc::Rc<$crate::primitives::Expression>,
+            x2: &std::rc::Rc<$crate::primitives::Expression>,
+        ) -> std::rc::Rc<$crate::primitives::Expression> {
             std::rc::Rc::new(
-                $crate::primitives::BinaryOp {
-                    op_type: $crate::primitives::BinaryOpType::$exprName,
-                    l: std::rc::Rc::clone(x1),
-                    r: std::rc::Rc::clone(x2)}
+                $crate::primitives::Expression::BinaryOp(
+                    std::rc::Rc::clone(x1),
+                    $crate::primitives::BinaryOpType::$exprName,
+                    std::rc::Rc::clone(x2),
+                )
             )
         }
     }
