@@ -1,14 +1,13 @@
-use expression_trees::primitives::Variable;
 use expression_trees::{variables, add};
-use expression_trees::mappers::walk::{WalkMapper, WalkMappable};
+use expression_trees::mappers::walk::{WalkMapper};
 
 
 struct MyWalkMapper;
 
 
 impl WalkMapper for MyWalkMapper {
-    fn map_variable(&self, expr: &Variable) {
-        println!("Visiting '{}'.", expr.name);
+    fn map_variable(&self, name: String) {
+        println!("Visiting '{}'.", name);
     }
 }
 
@@ -18,5 +17,5 @@ fn main() {
     let expr = add(&add(&x, &y), &z);
 
     let var_visitor = MyWalkMapper {};
-    expr.accept(&var_visitor);
+    var_visitor.visit(&expr);
 }
