@@ -30,3 +30,4 @@ pub use operations::{add, mul, div};
 pub use builders::{var};
 pub use macro_defs::{variables};
 pub mod macros;
+pub mod parse;

@@ -18,7 +18,7 @@
 - [-] Force Expression to be derived from:
   - [X]  ~std::fmt::Display~
   - [X] ~std::cmp::Eq~
-  - [ ] Probably all the mappers that we implement.
+  - [X] Probably all the mappers that we implement.
 - [ ] String parsing. (It's probably time to 
 - [ ] Do the Binary Ops _have_ to to "binary", can they instead be rewritten to
   take arbitrary number of operands like pymbolic?
