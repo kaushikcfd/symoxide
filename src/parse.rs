@@ -9,7 +9,7 @@ use crate::Expression;
 
 /// {{{ Precedence
 
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub enum Precedence{
     Identifier,
     Literal,
@@ -73,7 +73,6 @@ impl Precedence {
     }
 }
 
-/// }}}
 
 impl std::ops::Sub<i32> for Precedence {
     type Output = Precedence;
@@ -83,8 +82,7 @@ impl std::ops::Sub<i32> for Precedence {
     }
 }
 
-
-
+/// }}}
 
 
 #[derive(Debug, PartialEq)]
@@ -104,62 +102,87 @@ impl<I> ParseError<I> for CustomError<I> {
 }
 
 
-// {{{
+// {{{ parsers for individual nodes
 
 fn is_first_character_of_id(x: char) -> bool{
     x.is_ascii_alphabetic() || x == '_'
 }
 
-
 fn is_second_character_onwards_of_id(x: char) -> bool{
     x.is_ascii_alphanumeric() || x == '_'
 }
 
-// }}}
+fn is_whitespace(x: char) -> bool {
+    x.is_whitespace()
+}
 
+
+fn _parse_parens(input: &str) -> IResult<&str, Expression, CustomError<&str>> {
+    let inner_expr = tuple((
+        take_while(is_whitespace),
+        tag("("),
+        take_while(is_whitespace),
+        |x| _parse_expr(x, Precedence::Parens) ,
+        take_while(is_whitespace),
+        tag(")"),
+        take_while(is_whitespace),
+    ))(input);
+
+    match inner_expr {
+        Ok((input, (_, _, _, expr, _, _, _))) => Ok((input, expr)),
+        _                                     => Err(Error(CustomError::MyError)),
+    }
+}
+
+
+fn parse_identifier(input: &str) -> IResult<&str, Expression, CustomError<&str>> {
+    let acc: IResult<&str, (&str, &str, &str, &str)> = tuple((
+        take_while(is_whitespace),
+        take_while_m_n(1, 1, is_first_character_of_id),
+        take_while(is_second_character_onwards_of_id),
+        take_while(is_whitespace),
+    ))(input);
+
+    match acc {
+        Ok((input, (_, head, tail, _))) => Ok((input,
+                                               Expression::Variable(format!("{}{}",
+                                                                            head, tail)))),
+        _                               => Err(Error(CustomError::MyError)),
+    }
+}
+
+// }}}
 
 
 fn _parse_expr(input: &str, prec: Precedence) -> IResult<&str, Expression, CustomError<&str>> {
 
     if prec >= Precedence::Parens {
         let prec = Precedence::Parens;
-        println!("Trying parens on {}", input);
-        let inner_expr = tuple((tag("("),
-                                |x| _parse_expr(x, Precedence::Parens) ,
-                                tag(")")))(input);
-        let result = match inner_expr {
-            Ok((input, (_, expr, _))) => Ok((input, expr)),
-            _                 => _parse_expr(input, prec-1),
-        };
-        return result;
-    }
-    if prec >= Precedence::Identifier {
-        let prec = Precedence::Identifier;
-        println!("Trying identifier on {}", input);
-        // take the first character
-        let first_char_match: IResult<&str, &str> = take_while_m_n(1, 1, is_first_character_of_id)(input);
-        match first_char_match {
-            Ok((input_minus_first, first_char)) => {
-                let second_char_onwards_match: IResult<&str, &str>  =
-                    take_while(is_second_character_onwards_of_id)(input_minus_first);
-                match second_char_onwards_match {
-                    Ok((input_minus_word, second_char_onwards)) => {
-                        let name = format!("{}{}", first_char, second_char_onwards);
-                        return Ok((input_minus_word, Expression::Variable(name)));
-                    },
-                    _ => {return _parse_expr(input, prec-1)},
-                }
-            },
-            _                       =>  {return _parse_expr(input, prec-1)},
+        let input_as_parens = _parse_parens(input);
+
+        match input_as_parens {
+            Ok(_)  => input_as_parens,
+            Err(_) => _parse_expr(input, prec-1)
         }
     }
+    else if prec >= Precedence::Identifier {
+        let input_as_iden = parse_identifier(input);
 
-    return Err(Error(CustomError::MyError));
+        match input_as_iden {
+            Ok(_)  => input_as_iden,
+            Err(_) => Err(Error(CustomError::MyError))
+        }
+    } else {
+        unimplemented!("Precedence {:?}.", prec);
+    }
 }
+
 
 pub fn parse_expr(input: &str) -> Expression {
     match _parse_expr(input, Precedence::Parens) {
-        Ok((_, expr)) => expr,
+        Ok(("", expr)) => expr,
         _                 => panic!(),
     }
 }
+
+// vim: fdm=marker
