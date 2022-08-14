@@ -1,7 +1,11 @@
 use expression_trees::parse::parse_expr;
+use env_logger;
 
 
 fn main() {
-    let expr = parse_expr(" ( (x))  ");
+    env_logger::init();
+    // let expr = parse_expr(" ( (x))  ");
+    // println!("Parsed as {}", expr);
+    let expr = parse_expr("(x + y) + z");
     println!("Parsed as {}", expr);
 }
