@@ -6,6 +6,6 @@ fn main() {
     env_logger::init();
     // let expr = parse_expr(" ( (x))  ");
     // println!("Parsed as {}", expr);
-    let expr = parse_expr("(x + y) + z");
+    let expr = parse_expr("x");
     println!("Parsed as {}", expr);
 }

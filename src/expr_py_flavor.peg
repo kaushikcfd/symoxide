@@ -1,0 +1,9 @@
+ALPHA = { 'a'..'z' | 'A'..'Z' }
+DIGIT = { '0'..'9' }
+
+variable = { (ALPHA | "_") ~ (DIGIT | ALPHA | "_")* }
+
+expr     = { variable }
+
+
+
