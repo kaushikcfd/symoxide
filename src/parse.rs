@@ -1,26 +1,17 @@
 use crate::Expression;
 use std::rc::Rc;
 use lalrpop_util::lalrpop_mod;
+use lazy_static::lazy_static;
 
-// The grammar we are parsing is as follows in a EBNF grammar
-// expr = logical_or
-// logical_or = logical_or OR logical_and
-//            | logical_and
-// logical_and = logical_and AND logical_not
-//             | logical_not
-// logical_not = NOT logical_not
-//             | cmp_eq
-// cmp_eq      = cmp_eq DOUBLE_EQ cmp_neq
-//             | cmp_neq
-// cmp_neq     = cmp_neq NEQ cmp_gt
-//             | cmp_gt
-// cmp_gt      = cmp_gt GT cm
+lalrpop_mod!(py_parser, "/grammars/parse_py_flavor.rs");
 
-lalrpop_mod!(parser, "/grammars/parse_py_flavor.rs");
+lazy_static! {
+    static ref PY_PARSER: py_parser::ExprParser = py_parser::ExprParser::new();
+}
 
 
 pub fn parse_expr(input: &str) -> Rc<Expression> {
-    parser::ExprParser::new().parse(input).unwrap()
+    PY_PARSER.parse(input).unwrap()
 }
 
 // vim: fdm=marker
