@@ -41,6 +41,7 @@ pub enum ScalarT {
 pub enum Expression {
     Variable(String),
     BinaryOp(Rc<Expression>, BinaryOpType, Rc<Expression>),
+    UnaryOp(UnaryOpType, Rc<Expression>),
     Scalar(ScalarT),
 }
 
@@ -53,6 +54,29 @@ pub enum BinaryOpType {
     Product,
     Divide,
     FloorDiv,
+
+    Equal,
+    NotEqual,
+    Greater,
+    GreaterEqual,
+    Less,
+    LessEqual,
+
+    BitwiseOr,
+    BitwiseXor,
+    BitwiseAnd,
+
+    LogicalAnd,
+    LogicalOr,
+
+    LeftShift,
+    RightShift
+}
+
+#[derive(Copy, Clone)]
+pub enum UnaryOpType {
+    LogicalNot,
+    BitwiseNot
 }
 
 // }}}

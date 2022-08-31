@@ -1,11 +1,55 @@
-use crate::{Expression, BinaryOpType};
+use crate::primitives::{Expression, BinaryOpType, UnaryOpType};
 use std::rc::Rc;
 
 
 grammar;
 
 pub Expr: Rc<Expression>  = {
-      SumExpr,
+      OrExpr,
+};
+
+
+OrExpr: Rc<Expression> = {
+    <left_op: OrExpr> "or" <right_op: AndExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::LogicalOr, right_op.clone())),
+    AndExpr,
+};
+
+AndExpr: Rc<Expression> = {
+    <left_op: AndExpr> "and" <right_op: NotExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::LogicalAnd, right_op.clone())),
+    NotExpr,
+};
+
+NotExpr: Rc<Expression> = {
+    "not" <op: NotExpr>
+        => Rc::new(Expression::UnaryOp(UnaryOpType::LogicalNot, op.clone())),
+    CmpExpr,
+};
+
+CmpExpr: Rc<Expression> = {
+    <left_op: CmpExpr> <operator: CmpOperator> <right_op: BitwiseOrExpr>
+         => Rc::new(Expression::BinaryOp(left_op.clone(), operator, right_op.clone())),
+    BitwiseOrExpr,
+};
+
+BitwiseOrExpr: Rc<Expression> = {
+    <left_op: BitwiseOrExpr> "|" <right_op: BitwiseAndExpr>
+         => Rc::new(Expression::BinaryOp(left_op.clone(),  BinaryOpType::BitwiseOr, right_op.clone())),
+    BitwiseAndExpr,
+};
+
+
+BitwiseAndExpr: Rc<Expression> = {
+    <left_op: BitwiseAndExpr> "&" <right_op: ShiftExpr>
+         => Rc::new(Expression::BinaryOp(left_op.clone(),  BinaryOpType::BitwiseAnd, right_op.clone())),
+    ShiftExpr,
+};
+
+ShiftExpr: Rc<Expression> = {
+    <left_op: ShiftExpr> <operator: ShiftOperator> <right_op: SumExpr>
+         => Rc::new(Expression::BinaryOp(left_op.clone(),  operator, right_op.clone())),
+    SumExpr,
 };
 
 SumExpr: Rc<Expression> = {
@@ -20,6 +64,20 @@ ProdExpr: Rc<Expression> = {
 
 AtomExpr: Rc<Expression> = {
     <identifier: Identifier>                      => Rc::new(Expression::Variable(identifier)),
+};
+
+CmpOperator: BinaryOpType = {
+    "=="                                         => BinaryOpType::Equal,
+    "!="                                         => BinaryOpType::NotEqual,
+    ">"                                          => BinaryOpType::Greater,
+    ">="                                         => BinaryOpType::GreaterEqual,
+    "<"                                          => BinaryOpType::Less,
+    "<="                                         => BinaryOpType::LessEqual,
+};
+
+ShiftOperator: BinaryOpType = {
+    ">>"                                         => BinaryOpType::RightShift,
+    "<<"                                         => BinaryOpType::LeftShift,
 };
 
 Identifier: String =  {
