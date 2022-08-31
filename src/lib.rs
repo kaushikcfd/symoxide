@@ -31,6 +31,3 @@ pub use builders::{var};
 pub use macro_defs::{variables};
 pub mod macros;
 pub mod parse;
-
-#[macro_use]
-extern crate pest_derive;
