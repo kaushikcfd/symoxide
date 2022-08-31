@@ -39,10 +39,11 @@ pub enum ScalarT {
 
 
 pub enum Expression {
-    Variable(String),
-    BinaryOp(Rc<Expression>, BinaryOpType, Rc<Expression>),
-    UnaryOp(UnaryOpType, Rc<Expression>),
     Scalar(ScalarT),
+    Variable(String),
+    UnaryOp(UnaryOpType, Rc<Expression>),
+    BinaryOp(Rc<Expression>, BinaryOpType, Rc<Expression>),
+    Call(Rc<Expression>, Vec<Rc<Expression>>),
 }
 
 

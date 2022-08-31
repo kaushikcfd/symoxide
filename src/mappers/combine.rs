@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 
+use std::rc::Rc;
 use crate::{Expression, BinaryOpType, UnaryOpType, ScalarT};
 
 
@@ -31,22 +32,28 @@ pub trait CombineMapper: Sized{
 
     fn visit(&self, expr: &Expression) -> Self::Output {
         match expr {
-            Expression::Variable(name)     => self.map_variable(name.to_string()),
-            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
-            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
             Expression::Scalar(s)          => self.map_scalar(&s),
+            Expression::Variable(name)     => self.map_variable(name.to_string()),
+            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+            Expression::Call(call, params) => self.map_call(&call, &params),
         }
     }
 
-    fn map_variable(&self, name: String) -> Self::Output;
     fn map_scalar(&self, value: &ScalarT) -> Self::Output;
+    fn map_variable(&self, name: String) -> Self::Output;
+
+    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression) -> Self::Output {
+        self.visit(x)
+    }
 
     fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression) -> Self::Output {
         self.combine(&[self.visit(left), self.visit(right)])
     }
 
-    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression) -> Self::Output {
-        self.visit(x)
+    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>) -> Self::Output {
+        let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x)).collect();
+        self.combine(&[self.visit(call), self.combine(&rec_params)])
     }
 }
 
@@ -64,10 +71,11 @@ pub trait CombineMapperWithContext: Sized{
 
     fn visit(&self, expr: &Expression, context: &Self::Context) -> Self::Output {
         match expr {
-            Expression::Variable(name)     => self.map_variable(name.to_string(), context),
-            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
-            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
             Expression::Scalar(s)          => self.map_scalar(&s, context),
+            Expression::Variable(name)     => self.map_variable(name.to_string(), context),
+            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+            Expression::Call(call, params) => self.map_call(&call, &params, context),
         }
     }
 
@@ -82,6 +90,11 @@ pub trait CombineMapperWithContext: Sized{
     fn map_unary_op(
         &self, _op: UnaryOpType, x: &Expression, context: &Self::Context) -> Self::Output {
         self.visit(x, context)
+    }
+
+    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>, context: &Self::Context) -> Self::Output {
+        let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x, context)).collect();
+        self.combine(&[self.visit(call, context), self.combine(&rec_params)])
     }
 }
 

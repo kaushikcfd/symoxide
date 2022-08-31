@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 
+use std::rc::Rc;
 use crate::primitives::{Expression, BinaryOpType, ScalarT, UnaryOpType};
 
 // {{{ WalkMapper
@@ -35,19 +36,25 @@ pub trait WalkMapper{
     fn visit(&self, expr: &Expression) {
         if self.should_walk(expr) {
             match expr {
-                Expression::Variable(name)     => self.map_variable(name.to_string()),
-                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
-                Expression::UnaryOp(op, x)    => self.map_unary_op(op.clone(), &x),
                 Expression::Scalar(s)          => self.map_scalar(&s),
+                Expression::Variable(name)     => self.map_variable(name.to_string()),
+                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
+                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+                Expression::Call(call, params) => self.map_call(&call, &params),
             };
             self.post_walk(expr);
         }
     }
 
+    fn map_scalar(&self, _value: &ScalarT) {
+    }
+
     fn map_variable(&self, _name: String) {
     }
 
-    fn map_scalar(&self, _value: &ScalarT) {
+    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression)
+    {
+        self.visit(x);
     }
 
     fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression)
@@ -56,9 +63,12 @@ pub trait WalkMapper{
         self.visit(right);
     }
 
-    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression)
+    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>)
     {
-        self.visit(x);
+        self.visit(call);
+        for param in params {
+            self.visit(param);
+        }
     }
 }
 
@@ -81,20 +91,25 @@ pub trait WalkMapperWithContext{
     fn visit(&self, expr: &Expression, context: &Self::Context) {
         if self.should_walk(expr, context) {
             match expr {
-                Expression::Variable(name)     => self.map_variable(name.to_string(), context),
-                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
-                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
                 Expression::Scalar(s)          => self.map_scalar(&s, context),
+                Expression::Variable(name)     => self.map_variable(name.to_string(), context),
+                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
+                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+                Expression::Call(call, params) => self.map_call(&call, &params, context),
             };
             self.post_walk(expr, context);
         }
     }
 
+    fn map_scalar(&self, _value: &ScalarT, _context: &Self::Context) {
+    }
 
     fn map_variable(&self, _name: String, _context: &Self::Context) {
     }
 
-    fn map_scalar(&self, _value: &ScalarT, _context: &Self::Context) {
+    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression, context: &Self::Context)
+    {
+        self.visit(x, context);
     }
 
     fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression, context: &Self::Context)
@@ -103,9 +118,11 @@ pub trait WalkMapperWithContext{
         self.visit(right, context);
     }
 
-    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression, context: &Self::Context)
-    {
-        self.visit(x, context);
+    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>, context: &Self::Context) {
+        self.visit(call, context);
+        for param in params {
+            self.visit(param, context);
+        }
     }
 }
 
@@ -127,20 +144,25 @@ pub trait MutWalkMapper{
     fn visit(&mut self, expr: &Expression) {
         if self.should_walk(expr) {
             match expr {
-                Expression::Variable(name)     => self.map_variable(name.to_string()),
-                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
-                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
                 Expression::Scalar(s)          => self.map_scalar(&s),
+                Expression::Variable(name)     => self.map_variable(name.to_string()),
+                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
+                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+                Expression::Call(call, params) => self.map_call(&call, &params),
             };
             self.post_walk(expr);
         }
     }
 
+    fn map_scalar(&mut self, _value: &ScalarT) {
+    }
 
     fn map_variable(&mut self, _name: String) {
     }
 
-    fn map_scalar(&mut self, _value: &ScalarT) {
+    fn map_unary_op(&mut self, _op: UnaryOpType, x: &Expression)
+    {
+        self.visit(x);
     }
 
     fn map_binary_op(&mut self, left: &Expression, _op: BinaryOpType, right: &Expression)
@@ -149,9 +171,11 @@ pub trait MutWalkMapper{
         self.visit(right);
     }
 
-    fn map_unary_op(&mut self, _op: UnaryOpType, x: &Expression)
-    {
-        self.visit(x);
+    fn map_call(&mut self, call: &Expression, params: &Vec<Rc<Expression>>) {
+        self.visit(call);
+        for param in params {
+            self.visit(param);
+        }
     }
 }
 

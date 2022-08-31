@@ -92,10 +92,23 @@ impl fmt::Display for ScalarT {
 impl fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Expression::Variable(name)     => write!(f, "Variable(\"{}\")", name),
-            Expression::BinaryOp(l, op, r) => write!(f, "{}({}, {})", op, l, r),
-            Expression::UnaryOp(op, x)     => write!(f, "{}{}", op, x),
-            Expression::Scalar(s)          => write!(f, "{}", s),
+            Expression::Scalar(s)            => write!(f, "{}", s),
+            Expression::Variable(name)       => write!(f, "Variable(\"{}\")", name),
+            Expression::UnaryOp(op, x)       => write!(f, "{}{}", op, x),
+            Expression::BinaryOp(l, op, r)   => write!(f, "{}({}, {})", op, l, r),
+            Expression::Call(call, params)   => {
+                let mut param_str = format!("");
+                // TODO: Make it functional. Couldn't find a neater way using fold.
+                for (iparam, param) in params.iter().enumerate() {
+                    param_str = if iparam == 0 {
+                        format!("{}", param)
+                    } else {
+                        format!("{}, {}", param_str, param)
+                    };
+                }
+
+                write!(f, "Call({},[{}])", call, param_str)
+            },
         }
     }
 }
