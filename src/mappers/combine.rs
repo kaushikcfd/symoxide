@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 
-use crate::{Expression, BinaryOpType, ScalarT};
+use crate::{Expression, BinaryOpType, UnaryOpType, ScalarT};
 
 
 // {{{ CombineMapper
@@ -31,8 +31,9 @@ pub trait CombineMapper: Sized{
 
     fn visit(&self, expr: &Expression) -> Self::Output {
         match expr {
-            Expression::Variable(name) => self.map_variable(name.to_string()),
+            Expression::Variable(name)     => self.map_variable(name.to_string()),
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
             Expression::Scalar(s)          => self.map_scalar(&s),
         }
     }
@@ -42,6 +43,10 @@ pub trait CombineMapper: Sized{
 
     fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression) -> Self::Output {
         self.combine(&[self.visit(left), self.visit(right)])
+    }
+
+    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression) -> Self::Output {
+        self.visit(x)
     }
 }
 
@@ -61,6 +66,7 @@ pub trait CombineMapperWithContext: Sized{
         match expr {
             Expression::Variable(name)     => self.map_variable(name.to_string(), context),
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
             Expression::Scalar(s)          => self.map_scalar(&s, context),
         }
     }
@@ -71,6 +77,11 @@ pub trait CombineMapperWithContext: Sized{
     fn map_binary_op(
         &self, left: &Expression, _op: BinaryOpType, right: &Expression, context: &Self::Context) -> Self::Output {
         self.combine(&[self.visit(left, context), self.visit(right, context)])
+    }
+
+    fn map_unary_op(
+        &self, _op: UnaryOpType, x: &Expression, context: &Self::Context) -> Self::Output {
+        self.visit(x, context)
     }
 }
 

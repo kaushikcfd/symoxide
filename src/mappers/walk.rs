@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 
-use crate::primitives::{Expression, BinaryOpType, ScalarT};
+use crate::primitives::{Expression, BinaryOpType, ScalarT, UnaryOpType};
 
 // {{{ WalkMapper
 
@@ -35,8 +35,9 @@ pub trait WalkMapper{
     fn visit(&self, expr: &Expression) {
         if self.should_walk(expr) {
             match expr {
-                Expression::Variable(name) => self.map_variable(name.to_string()),
+                Expression::Variable(name)     => self.map_variable(name.to_string()),
                 Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+                Expression::UnaryOp(op, x)    => self.map_unary_op(op.clone(), &x),
                 Expression::Scalar(s)          => self.map_scalar(&s),
             };
             self.post_walk(expr);
@@ -53,6 +54,11 @@ pub trait WalkMapper{
     {
         self.visit(left);
         self.visit(right);
+    }
+
+    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression)
+    {
+        self.visit(x);
     }
 }
 
@@ -75,8 +81,9 @@ pub trait WalkMapperWithContext{
     fn visit(&self, expr: &Expression, context: &Self::Context) {
         if self.should_walk(expr, context) {
             match expr {
-                Expression::Variable(name) => self.map_variable(name.to_string(), context),
+                Expression::Variable(name)     => self.map_variable(name.to_string(), context),
                 Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
                 Expression::Scalar(s)          => self.map_scalar(&s, context),
             };
             self.post_walk(expr, context);
@@ -94,6 +101,11 @@ pub trait WalkMapperWithContext{
     {
         self.visit(left, context);
         self.visit(right, context);
+    }
+
+    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression, context: &Self::Context)
+    {
+        self.visit(x, context);
     }
 }
 
@@ -115,8 +127,9 @@ pub trait MutWalkMapper{
     fn visit(&mut self, expr: &Expression) {
         if self.should_walk(expr) {
             match expr {
-                Expression::Variable(name) => self.map_variable(name.to_string()),
+                Expression::Variable(name)     => self.map_variable(name.to_string()),
                 Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
                 Expression::Scalar(s)          => self.map_scalar(&s),
             };
             self.post_walk(expr);
@@ -134,6 +147,11 @@ pub trait MutWalkMapper{
     {
         self.visit(left);
         self.visit(right);
+    }
+
+    fn map_unary_op(&mut self, _op: UnaryOpType, x: &Expression)
+    {
+        self.visit(x);
     }
 }
 

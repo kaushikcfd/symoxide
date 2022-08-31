@@ -20,16 +20,43 @@
 // SOFTWARE.
 
 use std::fmt;
-use crate::{Expression, BinaryOpType, ScalarT};
+use crate::{Expression, BinaryOpType, UnaryOpType, ScalarT};
 
 
 impl fmt::Display for BinaryOpType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let name = match self {
-            BinaryOpType::Sum     => "Sum",
-            BinaryOpType::Product => "Product",
-            BinaryOpType::Divide  => "Divide",
-            _                     => {panic!();}
+            BinaryOpType::Sum          => "Sum",
+            BinaryOpType::Product      => "Product",
+            BinaryOpType::Divide       => "Divide",
+            BinaryOpType::FloorDiv     => "FloorDiv",
+
+            BinaryOpType::Equal        => "Equal",
+            BinaryOpType::NotEqual     => "NotEqual",
+            BinaryOpType::Greater      => "Greater",
+            BinaryOpType::GreaterEqual => "GreaterEqual",
+            BinaryOpType::Less         => "Less",
+            BinaryOpType::LessEqual    => "LessEqual",
+
+            BinaryOpType::BitwiseOr    => "BitwiseOr",
+            BinaryOpType::BitwiseXor   => "BitwiseXor",
+            BinaryOpType::BitwiseAnd   => "BitwiseAnd",
+
+            BinaryOpType::LogicalAnd   => "LogicalAnd",
+            BinaryOpType::LogicalOr    => "LogicalOr",
+
+            BinaryOpType::LeftShift    => "LeftShift",
+            BinaryOpType::RightShift   => "RightShift",
+        };
+        write!(f, "{}", name)
+    }
+}
+
+impl fmt::Display for UnaryOpType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let name = match self {
+            UnaryOpType::LogicalNot    => "LogicalNot",
+            UnaryOpType::BitwiseNot    => "BitwiseNot",
         };
         write!(f, "{}", name)
     }
@@ -60,9 +87,10 @@ impl fmt::Display for ScalarT {
 impl fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Expression::Variable(name) => write!(f, "Variable(\"{}\")", name),
+            Expression::Variable(name)     => write!(f, "Variable(\"{}\")", name),
             Expression::BinaryOp(l, op, r) => write!(f, "{}({}, {})", op, l, r),
-            Expression::Scalar(s) => write!(f, "{}", s),
+            Expression::UnaryOp(op, x)     => write!(f, "{}{}", op, x),
+            Expression::Scalar(s)          => write!(f, "{}", s),
         }
     }
 }

@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 
-use crate::{Expression, BinaryOpType, ScalarT};
+use crate::{Expression, BinaryOpType, UnaryOpType, ScalarT};
 use std::rc::Rc;
 
 
@@ -30,6 +30,7 @@ pub trait IdentityMapper {
         match expr {
             Expression::Variable(name)     => self.map_variable(name.to_string()),
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
             Expression::Scalar(s)          => self.map_scalar(&s),
         }
     }
@@ -40,6 +41,10 @@ pub trait IdentityMapper {
 
     fn map_binary_op(&self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>) -> Rc<Expression> {
         Rc::new(Expression::BinaryOp(self.visit(left), op, self.visit(right)))
+    }
+
+    fn map_unary_op(&self, op: UnaryOpType, x: &Rc<Expression>) -> Rc<Expression> {
+        Rc::new(Expression::UnaryOp(op, self.visit(x)))
     }
 
     fn map_scalar(&self, value: &ScalarT) -> Rc<Expression> {
@@ -57,8 +62,9 @@ pub trait IdentityMapperWithContext {
 
     fn visit(&self, expr: &Expression, context: &Self::Context) -> Rc<Expression> {
         match expr {
-            Expression::Variable(name) => self.map_variable(name.to_string(), context),
+            Expression::Variable(name)     => self.map_variable(name.to_string(), context),
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
             Expression::Scalar(s)          => self.map_scalar(&s, context),
         }
     }
@@ -70,6 +76,11 @@ pub trait IdentityMapperWithContext {
     fn map_binary_op(&self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>, context: &Self::Context) -> Rc<Expression> {
         Rc::new(Expression::BinaryOp(self.visit(left, context), op, self.visit(right, context)))
     }
+
+    fn map_unary_op(&self, op: UnaryOpType, x: &Rc<Expression>, context: &Self::Context) -> Rc<Expression> {
+        Rc::new(Expression::UnaryOp(op, self.visit(x, context)))
+    }
+
 
     fn map_scalar(&self, value: &ScalarT, _context: &Self::Context) -> Rc<Expression> {
         Rc::new(Expression::Scalar(value.clone()))
