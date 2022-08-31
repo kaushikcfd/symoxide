@@ -1,5 +1,5 @@
 use crate::Expression;
-use crate::primitives::ScalarT;
+use std::rc::Rc;
 use lalrpop_util::lalrpop_mod;
 
 // The grammar we are parsing is as follows in a EBNF grammar
@@ -19,9 +19,8 @@ use lalrpop_util::lalrpop_mod;
 lalrpop_mod!(parser, "/grammars/parse_py_flavor.rs");
 
 
-pub fn parse_expr(input: &str) -> Expression {
-    let term: i32 = parser::TermParser::new().parse(input).unwrap();
-    Expression::Scalar(ScalarT::I32(term))
+pub fn parse_expr(input: &str) -> Rc<Expression> {
+    parser::ExprParser::new().parse(input).unwrap()
 }
 
 // vim: fdm=marker
