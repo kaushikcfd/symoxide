@@ -51,9 +51,11 @@ pub enum Expression {
 #[derive(Copy, Clone)]
 pub enum BinaryOpType {
     Sum,
+    Subtract,
     Product,
     Divide,
     FloorDiv,
+    Modulo,
 
     Equal,
     NotEqual,
@@ -70,13 +72,16 @@ pub enum BinaryOpType {
     LogicalOr,
 
     LeftShift,
-    RightShift
+    RightShift,
+
+    Exponent,
 }
 
 #[derive(Copy, Clone)]
 pub enum UnaryOpType {
     LogicalNot,
-    BitwiseNot
+    BitwiseNot,
+    Minus,
 }
 
 // }}}

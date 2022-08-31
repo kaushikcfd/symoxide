@@ -27,9 +27,11 @@ impl fmt::Display for BinaryOpType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let name = match self {
             BinaryOpType::Sum          => "Sum",
+            BinaryOpType::Subtract     => "Subtract",
             BinaryOpType::Product      => "Product",
             BinaryOpType::Divide       => "Divide",
             BinaryOpType::FloorDiv     => "FloorDiv",
+            BinaryOpType::Modulo       => "Modulo",
 
             BinaryOpType::Equal        => "Equal",
             BinaryOpType::NotEqual     => "NotEqual",
@@ -47,6 +49,8 @@ impl fmt::Display for BinaryOpType {
 
             BinaryOpType::LeftShift    => "LeftShift",
             BinaryOpType::RightShift   => "RightShift",
+
+            BinaryOpType::Exponent     => "Exponent",
         };
         write!(f, "{}", name)
     }
@@ -57,6 +61,7 @@ impl fmt::Display for UnaryOpType {
         let name = match self {
             UnaryOpType::LogicalNot    => "LogicalNot",
             UnaryOpType::BitwiseNot    => "BitwiseNot",
+            UnaryOpType::Minus         => "Minus",
         };
         write!(f, "{}", name)
     }

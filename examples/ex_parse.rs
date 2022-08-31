@@ -10,9 +10,8 @@ fn main() {
     let n = 1_000_000;
 
     for i in 0..n {
-        let expr = parse_expr("x + z*y");
-        if i == (n-1) {
-            println!("Parsed as {}", expr);
-        }
+        let code = format!("x + z*y + a{}", i);
+        let expr = parse_expr(&code[..]);
+        println!("Parsed as {}", expr);
     }
 }

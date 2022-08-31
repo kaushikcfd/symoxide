@@ -53,33 +53,57 @@ ShiftExpr: Rc<Expression> = {
 };
 
 SumExpr: Rc<Expression> = {
-    <left_op: SumExpr> "+" <right_op: ProdExpr>   => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::Sum, right_op.clone())),
+    <left_op: SumExpr> "+" <right_op: ProdExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::Sum, right_op.clone())),
+    <left_op: SumExpr> "-" <right_op: ProdExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::Subtract, right_op.clone())),
     ProdExpr,
 };
 
 ProdExpr: Rc<Expression> = {
-    <left_op: ProdExpr> "*" <right_op: AtomExpr>  => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::Product, right_op.clone())),
+    <left_op: ProdExpr> "*" <right_op: AtomExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::Product, right_op.clone())),
+    <left_op: ProdExpr> "/" <right_op: AtomExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::Divide, right_op.clone())),
+    <left_op: ProdExpr> "//" <right_op: AtomExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::FloorDiv, right_op.clone())),
+    <left_op: ProdExpr> "%" <right_op: AtomExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::Modulo, right_op.clone())),
+    UnaryExpr,
+};
+
+UnaryExpr: Rc<Expression> = {
+    "-" <op: UnaryExpr>  => Rc::new(Expression::UnaryOp(UnaryOpType::Minus, op.clone())),
+    "~" <op: UnaryExpr>  => Rc::new(Expression::UnaryOp(UnaryOpType::BitwiseNot, op.clone())),
+    "+" <op: UnaryExpr>  => op,
+    ExponentExpr,
+};
+
+ExponentExpr: Rc<Expression> = {
+    <left_op: AtomExpr> "**" <right_op: ExponentExpr>
+        => Rc::new(Expression::BinaryOp(left_op.clone(), BinaryOpType::Exponent, right_op.clone())),
     AtomExpr,
 };
 
 AtomExpr: Rc<Expression> = {
-    <identifier: Identifier>                      => Rc::new(Expression::Variable(identifier)),
+    <identifier: Identifier> => Rc::new(Expression::Variable(identifier)),
+    "(" <expr: Expr> ")"     => expr,
 };
 
 CmpOperator: BinaryOpType = {
-    "=="                                         => BinaryOpType::Equal,
-    "!="                                         => BinaryOpType::NotEqual,
-    ">"                                          => BinaryOpType::Greater,
-    ">="                                         => BinaryOpType::GreaterEqual,
-    "<"                                          => BinaryOpType::Less,
-    "<="                                         => BinaryOpType::LessEqual,
+    "==" => BinaryOpType::Equal,
+    "!=" => BinaryOpType::NotEqual,
+    ">"  => BinaryOpType::Greater,
+    ">=" => BinaryOpType::GreaterEqual,
+    "<"  => BinaryOpType::Less,
+    "<=" => BinaryOpType::LessEqual,
 };
 
 ShiftOperator: BinaryOpType = {
-    ">>"                                         => BinaryOpType::RightShift,
-    "<<"                                         => BinaryOpType::LeftShift,
+    ">>" => BinaryOpType::RightShift,
+    "<<" => BinaryOpType::LeftShift,
 };
 
 Identifier: String =  {
-    <s:r"[a-zA-Z_][a-zA-Z0-9_]*">                 => s.to_string(),
+    <s:r"[a-zA-Z_][a-zA-Z0-9_]*"> => s.to_string(),
 };
