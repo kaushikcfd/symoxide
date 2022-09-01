@@ -44,6 +44,7 @@ pub enum Expression {
     UnaryOp(UnaryOpType, Rc<Expression>),
     BinaryOp(Rc<Expression>, BinaryOpType, Rc<Expression>),
     Call(Rc<Expression>, Vec<Rc<Expression>>),
+    Subscript(Rc<Expression>, Vec<Rc<Expression>>),
 }
 
 

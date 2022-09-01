@@ -28,11 +28,12 @@ use std::rc::Rc;
 pub trait IdentityMapper {
     fn visit(&self, expr: &Expression) -> Rc<Expression> {
         match expr {
-            Expression::Scalar(s)          => self.map_scalar(&s),
-            Expression::Variable(name)     => self.map_variable(name.to_string()),
-            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
-            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
-            Expression::Call(call, params) => self.map_call(&call, &params),
+            Expression::Scalar(s)               => self.map_scalar(&s),
+            Expression::Variable(name)          => self.map_variable(name.to_string()),
+            Expression::UnaryOp(op, x)          => self.map_unary_op(op.clone(), &x),
+            Expression::BinaryOp(l, op, r)      => self.map_binary_op(&l, op.clone(), &r),
+            Expression::Call(call, params)      => self.map_call(&call, &params),
+            Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
         }
     }
 
@@ -58,6 +59,13 @@ pub trait IdentityMapper {
                                                    .map(|param| self.visit(param))
                                                    .collect()))
     }
+
+    fn map_subscript(&self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>) -> Rc<Expression> {
+        Rc::new(Expression::Subscript(self.visit(agg), indices
+                                 .iter()
+                                 .map(|idx| self.visit(idx))
+                                 .collect()))
+    }
 }
 
 // }}}
@@ -70,11 +78,12 @@ pub trait IdentityMapperWithContext {
 
     fn visit(&self, expr: &Expression, context: &Self::Context) -> Rc<Expression> {
         match expr {
-            Expression::Scalar(s)          => self.map_scalar(&s, context),
-            Expression::Variable(name)     => self.map_variable(name.to_string(), context),
-            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
-            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
-            Expression::Call(call, params) => self.map_call(&call, &params, context),
+            Expression::Scalar(s)               => self.map_scalar(&s, context),
+            Expression::Variable(name)          => self.map_variable(name.to_string(), context),
+            Expression::UnaryOp(op, x)          => self.map_unary_op(op.clone(), &x, context),
+            Expression::BinaryOp(l, op, r)      => self.map_binary_op(&l, op.clone(), &r, context),
+            Expression::Call(call, params)      => self.map_call(&call, &params, context),
+            Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices, context),
         }
     }
 
@@ -99,6 +108,13 @@ pub trait IdentityMapperWithContext {
                                                             .iter()
                                                             .map(|param| self.visit(param, context))
                                                             .collect()))
+    }
+
+    fn map_subscript(&self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>, context: &Self::Context) -> Rc<Expression> {
+        Rc::new(Expression::Subscript(self.visit(agg, context), indices
+                                      .iter()
+                                      .map(|idx| self.visit(idx, context))
+                                      .collect()))
     }
 }
 

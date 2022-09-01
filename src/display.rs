@@ -109,6 +109,19 @@ impl fmt::Display for Expression {
 
                 write!(f, "Call({},[{}])", call, param_str)
             },
+            Expression::Subscript(aggregate, indices)   => {
+                let mut idx_str = format!("");
+                // TODO: Make it functional. Couldn't find a neater way using fold.
+                for (i_idx, idx) in indices.iter().enumerate() {
+                    idx_str = if i_idx == 0 {
+                        format!("{}", idx)
+                    } else {
+                        format!("{}, {}", idx_str, idx)
+                    };
+                }
+
+                write!(f, "Subscript({},[{}])", aggregate,idx_str)
+            },
         }
     }
 }

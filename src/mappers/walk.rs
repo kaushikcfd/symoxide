@@ -36,11 +36,12 @@ pub trait WalkMapper{
     fn visit(&self, expr: &Expression) {
         if self.should_walk(expr) {
             match expr {
-                Expression::Scalar(s)          => self.map_scalar(&s),
-                Expression::Variable(name)     => self.map_variable(name.to_string()),
-                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
-                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
-                Expression::Call(call, params) => self.map_call(&call, &params),
+                Expression::Scalar(s)               => self.map_scalar(&s),
+                Expression::Variable(name)          => self.map_variable(name.to_string()),
+                Expression::UnaryOp(op, x)          => self.map_unary_op(op.clone(), &x),
+                Expression::BinaryOp(l, op, r)      => self.map_binary_op(&l, op.clone(), &r),
+                Expression::Call(call, params)      => self.map_call(&call, &params),
+                Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
             };
             self.post_walk(expr);
         }
@@ -70,6 +71,14 @@ pub trait WalkMapper{
             self.visit(param);
         }
     }
+
+    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>)
+    {
+        self.visit(agg);
+        for idx in indices {
+            self.visit(idx);
+        }
+    }
 }
 
 // }}}
@@ -91,11 +100,12 @@ pub trait WalkMapperWithContext{
     fn visit(&self, expr: &Expression, context: &Self::Context) {
         if self.should_walk(expr, context) {
             match expr {
-                Expression::Scalar(s)          => self.map_scalar(&s, context),
-                Expression::Variable(name)     => self.map_variable(name.to_string(), context),
-                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x, context),
-                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
-                Expression::Call(call, params) => self.map_call(&call, &params, context),
+                Expression::Scalar(s)               => self.map_scalar(&s, context),
+                Expression::Variable(name)          => self.map_variable(name.to_string(), context),
+                Expression::UnaryOp(op, x)          => self.map_unary_op(op.clone(), &x, context),
+                Expression::BinaryOp(l, op, r)      => self.map_binary_op(&l, op.clone(), &r, context),
+                Expression::Call(call, params)      => self.map_call(&call, &params, context),
+                Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices, context),
             };
             self.post_walk(expr, context);
         }
@@ -124,6 +134,13 @@ pub trait WalkMapperWithContext{
             self.visit(param, context);
         }
     }
+
+    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>, context: &Self::Context) {
+        self.visit(agg, context);
+        for idx in indices {
+            self.visit(idx, context);
+        }
+    }
 }
 
 
@@ -144,11 +161,12 @@ pub trait MutWalkMapper{
     fn visit(&mut self, expr: &Expression) {
         if self.should_walk(expr) {
             match expr {
-                Expression::Scalar(s)          => self.map_scalar(&s),
-                Expression::Variable(name)     => self.map_variable(name.to_string()),
-                Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
-                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
-                Expression::Call(call, params) => self.map_call(&call, &params),
+                Expression::Scalar(s)               => self.map_scalar(&s),
+                Expression::Variable(name)          => self.map_variable(name.to_string()),
+                Expression::UnaryOp(op, x)          => self.map_unary_op(op.clone(), &x),
+                Expression::BinaryOp(l, op, r)      => self.map_binary_op(&l, op.clone(), &r),
+                Expression::Call(call, params)      => self.map_call(&call, &params),
+                Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
             };
             self.post_walk(expr);
         }
@@ -175,6 +193,13 @@ pub trait MutWalkMapper{
         self.visit(call);
         for param in params {
             self.visit(param);
+        }
+    }
+
+    fn map_subscript(&mut self, agg: &Expression, indices: &Vec<Rc<Expression>>) {
+        self.visit(agg);
+        for idx in indices {
+            self.visit(idx);
         }
     }
 }
