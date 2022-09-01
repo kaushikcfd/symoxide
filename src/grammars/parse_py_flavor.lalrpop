@@ -1,7 +1,6 @@
 use crate::primitives::{Expression, BinaryOpType, UnaryOpType};
 use std::rc::Rc;
 
-
 grammar;
 
 pub Expr: Rc<Expression>  = {
@@ -86,8 +85,20 @@ ExponentExpr: Rc<Expression> = {
 };
 
 AtomExpr: Rc<Expression> = {
-    <identifier: Identifier> => Rc::new(Expression::Variable(identifier)),
-    "(" <expr: Expr> ")"     => expr,
+    <identifier: Identifier>                                    => Rc::new(Expression::Variable(identifier)),
+    <call: AtomExpr> "(" <commaed_exprs: CommaedExprsFinal> ")" => Rc::new(Expression::Call(call.clone(), commaed_exprs)),
+    <call: AtomExpr> "("  ")"                                   => Rc::new(Expression::Call(call.clone(), vec![])),
+    "(" <expr: Expr> ")"                                        => expr,
+};
+
+CommaedExprs: Vec<Rc<Expression>> = {
+    <commaed_exprs: CommaedExprs> "," <expr: Expr>             => [commaed_exprs.as_slice(), vec![expr].as_slice()].concat(),
+    <expr: Expr>                                               => vec![expr],
+}
+
+CommaedExprsFinal: Vec<Rc<Expression>> = {
+    <commaed_exprs: CommaedExprs>      => commaed_exprs,
+    <commaed_exprs: CommaedExprs> ","  => commaed_exprs,
 };
 
 CmpOperator: BinaryOpType = {

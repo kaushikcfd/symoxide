@@ -10,7 +10,7 @@ fn main() {
     let n = 10;
 
     for i in 0..n {
-        let code = format!("x + z*(y + a{})", i);
+        let code = format!("x + z(y + a{}, b + c, )", i);
         let expr = parse_expr(&code[..]);
         println!("Parsed as {}", expr);
     }
