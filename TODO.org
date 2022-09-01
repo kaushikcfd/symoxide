@@ -22,6 +22,7 @@
 - [X] String parsing.
 - [ ] Do the Binary Ops _have_ to to "binary", can they instead be rewritten to
   take arbitrary number of operands like pymbolic?
+- [ ] Parsing: needs helpful error messages.
 - Idea: We should probably implement something like IdentityMappers as derive macros.
 - [X] Implement get_dependencies
 - [ ] Implement substitute
