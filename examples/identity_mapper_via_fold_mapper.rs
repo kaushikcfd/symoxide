@@ -1,12 +1,16 @@
 use std::rc::Rc;
 use symoxide::mappers::fold::FoldMapper;
 use symoxide::{add, variables};
-use symoxide::{BinaryOpType, Expression, ScalarT};
+use symoxide::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 
 struct Renamer;
 
 impl FoldMapper for Renamer {
     type Output = Rc<Expression>;
+
+    fn map_scalar(&self, expr: &ScalarT) -> Rc<Expression> {
+        return Rc::new(Expression::Scalar(expr.clone()));
+    }
 
     fn map_variable(&self, name: String) -> Rc<Expression> {
         let new_name = match &name[..] {
@@ -24,8 +28,18 @@ impl FoldMapper for Renamer {
         return Rc::new(Expression::BinaryOp(rec_l, op.clone(), rec_r));
     }
 
-    fn map_scalar(&self, expr: &ScalarT) -> Rc<Expression> {
-        return Rc::new(Expression::Scalar(expr.clone()));
+    fn map_unary_op(&self, op: UnaryOpType, x: &Expression) -> Rc<Expression> {
+        return Rc::new(Expression::UnaryOp(op.clone(), self.visit(x)));
+    }
+
+    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>) -> Rc<Expression> {
+        let rec_params = params.iter().map(|par| self.visit(par)).collect();
+        return Rc::new(Expression::Call(self.visit(call), rec_params));
+    }
+
+    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>) -> Rc<Expression> {
+        let rec_indices = indices.iter().map(|idx| self.visit(idx)).collect();
+        return Rc::new(Expression::Subscript(self.visit(agg), rec_indices));
     }
 }
 
