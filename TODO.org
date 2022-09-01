@@ -2,7 +2,7 @@
   - The problem with enum-based node is that it is quite difficult to extend with sub-classes
   - However, for structs it is as simple as making sure that, probably this needs some scary
     template-fu, which is not quite bad in itself.
-- [-] Implement visitors
+- [X] Implement visitors
   - [X] IdentityMapper
   - [X] Fold to a different type?
     - Like a StringifyMapper?
@@ -15,7 +15,7 @@
   - [X] CombineMapperWithContext
   - [X] WalkMapper
   - [X] DependencyMapper
-- [-] Force Expression to be derived from:
+- [X] Force Expression to be derived from:
   - [X]  ~std::fmt::Display~
   - [X] ~std::cmp::Eq~
   - [X] Probably all the mappers that we implement.
@@ -29,7 +29,9 @@
 - [X] Implement Bitwise Operators
 - [ ] Implement out sub-language as the `eval!` macro
 - [ ] Add Continuous Integration
-- [ ] ~expression_trees~ is a terrible name, probably rename it to something else?
-  - [ ] Rename to SymOxide
+- [X] ~expression_trees~ is a terrible name, probably rename it to something else?
+  - [X] Rename to SymOxide
 - [ ] Start working on a design doc
+- [ ] Make a deduplicating helper function
+- [ ] Visualize to graphviz
 - [ ] Make public

@@ -1,4 +1,4 @@
-use expression_trees::{variables, add};
+use symoxide::{variables, add};
 
 fn main() {
     let (x, y) = variables!("x y");

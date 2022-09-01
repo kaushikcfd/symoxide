@@ -1,6 +1,6 @@
-use expression_trees::mappers::fold::{FoldMapper};
-use expression_trees::{ScalarT, Expression, BinaryOpType};
-use expression_trees::{variables, add};
+use symoxide::mappers::fold::{FoldMapper};
+use symoxide::{ScalarT, Expression, BinaryOpType};
+use symoxide::{variables, add};
 use std::rc::Rc;
 
 struct Renamer;

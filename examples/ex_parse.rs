@@ -1,4 +1,4 @@
-use expression_trees::parse::parse_expr;
+use symoxide::parse::parse_expr;
 use env_logger;
 
 

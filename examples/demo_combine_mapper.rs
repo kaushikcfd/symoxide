@@ -1,6 +1,6 @@
-use expression_trees::{variables, add};
-use expression_trees::mappers::combine::CombineMapper;
-use expression_trees::mapper_impls::dependency::DependenciesGetter;
+use symoxide::{variables, add};
+use symoxide::mappers::combine::CombineMapper;
+use symoxide::mapper_impls::dependency::DependenciesGetter;
 
 
 fn main() {

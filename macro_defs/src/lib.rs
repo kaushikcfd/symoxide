@@ -34,7 +34,7 @@ fn parse_variables_string_stream(s: String) -> TokenStream {
     let words = get_words(&s[..]);
     let mut word_list: Punctuated<Expr,Comma> = Punctuated::new();
     for word in words {
-        let str_to_parse = format!("expression_trees::var(\"{}\")", word);
+        let str_to_parse = format!("symoxide::var(\"{}\")", word);
         // TODO: Avoid this call to `parse_str`
         word_list.push(parse_str(&str_to_parse[..]).unwrap());
     }

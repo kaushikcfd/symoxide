@@ -1,6 +1,6 @@
-use expression_trees::mappers::identity::{IdentityMapper};
-use expression_trees::Expression;
-use expression_trees::{variables, add};
+use symoxide::mappers::identity::{IdentityMapper};
+use symoxide::Expression;
+use symoxide::{variables, add};
 use std::rc::Rc;
 
 struct Renamer;

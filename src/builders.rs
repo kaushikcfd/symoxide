@@ -27,7 +27,7 @@ use crate::Expression;
 ///
 /// # Example
 /// ```
-/// use expression_trees::var;
+/// use symoxide::var;
 ///
 /// let x = var("x");
 /// ```

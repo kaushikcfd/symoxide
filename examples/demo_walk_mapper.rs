@@ -1,5 +1,5 @@
-use expression_trees::{variables, add};
-use expression_trees::mappers::walk::{WalkMapper};
+use symoxide::{variables, add};
+use symoxide::mappers::walk::{WalkMapper};
 
 
 struct MyWalkMapper;

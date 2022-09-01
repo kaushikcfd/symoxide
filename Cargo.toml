@@ -1,11 +1,11 @@
 [package]
-name = "expression_trees"
+name = "symoxide"
 version = "0.1.0"
 authors = ["Kaushik Kulkarni <kaushikcfd@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "expression_trees"
+name = "symoxide"
 path = "src/lib.rs"
 
 [build-dependencies]
