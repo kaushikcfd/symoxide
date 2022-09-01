@@ -19,14 +19,14 @@
   - [X]  ~std::fmt::Display~
   - [X] ~std::cmp::Eq~
   - [X] Probably all the mappers that we implement.
-- [ ] String parsing. (It's probably time to 
+- [X] String parsing.
 - [ ] Do the Binary Ops _have_ to to "binary", can they instead be rewritten to
   take arbitrary number of operands like pymbolic?
 - Idea: We should probably implement something like IdentityMappers as derive macros.
 - [X] Implement get_dependencies
 - [ ] Implement substitute
 - [ ] Implement evaluate
-- [ ] Implement Bitwise Operators
+- [X] Implement Bitwise Operators
 - [ ] Implement out sub-language as the `eval!` macro
 - [ ] Add Continuous Integration
 - [ ] ~expression_trees~ is a terrible name, probably rename it to something else?
