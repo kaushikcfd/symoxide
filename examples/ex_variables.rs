@@ -1,4 +1,4 @@
-use symoxide::{variables, add};
+use symoxide::{add, variables};
 
 fn main() {
     let (x, y) = variables!("x y");

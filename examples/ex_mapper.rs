@@ -1,7 +1,7 @@
-use symoxide::mappers::identity::{IdentityMapper};
-use symoxide::Expression;
-use symoxide::{variables, add};
 use std::rc::Rc;
+use symoxide::mappers::identity::IdentityMapper;
+use symoxide::Expression;
+use symoxide::{add, variables};
 
 struct Renamer;
 impl IdentityMapper for Renamer {
@@ -9,15 +9,13 @@ impl IdentityMapper for Renamer {
         let new_name = match &name[..] {
             "x" => "foo",
             "y" => "bar",
-            _  => panic!("Unknown variable {}", name),
+            _ => panic!("Unknown variable {}", name),
         };
         Rc::new(Expression::Variable(new_name.to_string()))
     }
 }
 
-
 fn main() {
-
     let renamer = Renamer {};
     let (x, y) = variables!("x y");
 

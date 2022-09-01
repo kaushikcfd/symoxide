@@ -2,9 +2,7 @@ use crate::mappers::combine::CombineMapper;
 use crate::ScalarT;
 use std::collections::HashSet;
 
-
 pub struct DependenciesGetter;
-
 
 impl CombineMapper for DependenciesGetter {
     type Output = HashSet<String>;
@@ -18,11 +16,11 @@ impl CombineMapper for DependenciesGetter {
 
         return combined_values;
     }
-    fn map_variable(&self, name: String) -> Self::Output{
+    fn map_variable(&self, name: String) -> Self::Output {
         return HashSet::from([name]);
     }
 
-    fn map_scalar(&self, _value: &ScalarT) -> Self::Output{
+    fn map_scalar(&self, _value: &ScalarT) -> Self::Output {
         HashSet::new()
     }
 }

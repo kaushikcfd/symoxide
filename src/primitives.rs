@@ -7,8 +7,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 use std::rc::Rc;
-
 
 #[derive(Copy, Clone)]
 pub enum ScalarT {
@@ -37,7 +36,6 @@ pub enum ScalarT {
     F64(f64),
 }
 
-
 pub enum Expression {
     Scalar(ScalarT),
     Variable(String),
@@ -46,9 +44,6 @@ pub enum Expression {
     Call(Rc<Expression>, Vec<Rc<Expression>>),
     Subscript(Rc<Expression>, Vec<Rc<Expression>>),
 }
-
-
-
 
 #[derive(Copy, Clone)]
 pub enum BinaryOpType {

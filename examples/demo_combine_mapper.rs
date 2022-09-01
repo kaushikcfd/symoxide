@@ -1,7 +1,6 @@
-use symoxide::{variables, add};
-use symoxide::mappers::combine::CombineMapper;
 use symoxide::mapper_impls::dependency::DependenciesGetter;
-
+use symoxide::mappers::combine::CombineMapper;
+use symoxide::{add, variables};
 
 fn main() {
     let (x, y, z) = variables!("x y z");

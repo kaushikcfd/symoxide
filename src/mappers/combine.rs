@@ -7,8 +7,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -18,23 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
+use crate::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 use std::rc::Rc;
-use crate::{Expression, BinaryOpType, UnaryOpType, ScalarT};
-
 
 // {{{ CombineMapper
 
-pub trait CombineMapper: Sized{
+pub trait CombineMapper: Sized {
     type Output;
 
     fn combine(&self, values: &[Self::Output]) -> Self::Output;
 
     fn visit(&self, expr: &Expression) -> Self::Output {
         match expr {
-            Expression::Scalar(s)          => self.map_scalar(&s),
-            Expression::Variable(name)     => self.map_variable(name.to_string()),
-            Expression::UnaryOp(op, x)     => self.map_unary_op(op.clone(), &x),
+            Expression::Scalar(s) => self.map_scalar(&s),
+            Expression::Variable(name) => self.map_variable(name.to_string()),
+            Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), &x),
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
             Expression::Call(call, params) => self.map_call(&call, &params),
             Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
@@ -48,7 +46,8 @@ pub trait CombineMapper: Sized{
         self.visit(x)
     }
 
-    fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression) -> Self::Output {
+    fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression)
+                     -> Self::Output {
         self.combine(&[self.visit(left), self.visit(right)])
     }
 
@@ -65,11 +64,9 @@ pub trait CombineMapper: Sized{
 
 // }}}
 
-
-
 // {{{ CombineMapperWithContext
 
-pub trait CombineMapperWithContext: Sized{
+pub trait CombineMapperWithContext: Sized {
     type Output;
     type Context;
 
@@ -77,11 +74,11 @@ pub trait CombineMapperWithContext: Sized{
 
     fn visit(&self, expr: &Expression, context: &Self::Context) -> Self::Output {
         match expr {
-            Expression::Scalar(s)               => self.map_scalar(&s, context),
-            Expression::Variable(name)          => self.map_variable(name.to_string(), context),
-            Expression::UnaryOp(op, x)          => self.map_unary_op(op.clone(), &x, context),
-            Expression::BinaryOp(l, op, r)      => self.map_binary_op(&l, op.clone(), &r, context),
-            Expression::Call(call, params)      => self.map_call(&call, &params, context),
+            Expression::Scalar(s) => self.map_scalar(&s, context),
+            Expression::Variable(name) => self.map_variable(name.to_string(), context),
+            Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), &x, context),
+            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
+            Expression::Call(call, params) => self.map_call(&call, &params, context),
             Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices, context),
         }
     }
@@ -89,23 +86,28 @@ pub trait CombineMapperWithContext: Sized{
     fn map_variable(&self, name: String, context: &Self::Context) -> Self::Output;
     fn map_scalar(&self, value: &ScalarT, context: &Self::Context) -> Self::Output;
 
-    fn map_binary_op(
-        &self, left: &Expression, _op: BinaryOpType, right: &Expression, context: &Self::Context) -> Self::Output {
+    fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression,
+                     context: &Self::Context)
+                     -> Self::Output {
         self.combine(&[self.visit(left, context), self.visit(right, context)])
     }
 
-    fn map_unary_op(
-        &self, _op: UnaryOpType, x: &Expression, context: &Self::Context) -> Self::Output {
+    fn map_unary_op(&self, _op: UnaryOpType, x: &Expression, context: &Self::Context)
+                    -> Self::Output {
         self.visit(x, context)
     }
 
-    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>, context: &Self::Context) -> Self::Output {
+    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>, context: &Self::Context)
+                -> Self::Output {
         let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x, context)).collect();
         self.combine(&[self.visit(call, context), self.combine(&rec_params)])
     }
 
-    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>, context: &Self::Context) -> Self::Output {
-        let rec_indices: Vec<Self::Output> = indices.iter().map(|x| self.visit(x, context)).collect();
+    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>,
+                     context: &Self::Context)
+                     -> Self::Output {
+        let rec_indices: Vec<Self::Output> =
+            indices.iter().map(|x| self.visit(x, context)).collect();
         self.combine(&[self.visit(agg, context), self.combine(&rec_indices)])
     }
 }

@@ -1,6 +1,5 @@
-use symoxide::parse::parse_expr;
 use env_logger;
-
+use symoxide::parse::parse_expr;
 
 fn main() {
     env_logger::init();

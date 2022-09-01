@@ -1,4 +1,3 @@
-
 // Copyright (c) 2021 Kaushik Kulkarni
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8,8 +7,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,38 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+use crate::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 use std::fmt;
-use crate::{Expression, BinaryOpType, UnaryOpType, ScalarT};
-
 
 impl fmt::Display for BinaryOpType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let name = match self {
-            BinaryOpType::Sum          => "Sum",
-            BinaryOpType::Subtract     => "Subtract",
-            BinaryOpType::Product      => "Product",
-            BinaryOpType::Divide       => "Divide",
-            BinaryOpType::FloorDiv     => "FloorDiv",
-            BinaryOpType::Modulo       => "Modulo",
+            BinaryOpType::Sum => "Sum",
+            BinaryOpType::Subtract => "Subtract",
+            BinaryOpType::Product => "Product",
+            BinaryOpType::Divide => "Divide",
+            BinaryOpType::FloorDiv => "FloorDiv",
+            BinaryOpType::Modulo => "Modulo",
 
-            BinaryOpType::Equal        => "Equal",
-            BinaryOpType::NotEqual     => "NotEqual",
-            BinaryOpType::Greater      => "Greater",
+            BinaryOpType::Equal => "Equal",
+            BinaryOpType::NotEqual => "NotEqual",
+            BinaryOpType::Greater => "Greater",
             BinaryOpType::GreaterEqual => "GreaterEqual",
-            BinaryOpType::Less         => "Less",
-            BinaryOpType::LessEqual    => "LessEqual",
+            BinaryOpType::Less => "Less",
+            BinaryOpType::LessEqual => "LessEqual",
 
-            BinaryOpType::BitwiseOr    => "BitwiseOr",
-            BinaryOpType::BitwiseXor   => "BitwiseXor",
-            BinaryOpType::BitwiseAnd   => "BitwiseAnd",
+            BinaryOpType::BitwiseOr => "BitwiseOr",
+            BinaryOpType::BitwiseXor => "BitwiseXor",
+            BinaryOpType::BitwiseAnd => "BitwiseAnd",
 
-            BinaryOpType::LogicalAnd   => "LogicalAnd",
-            BinaryOpType::LogicalOr    => "LogicalOr",
+            BinaryOpType::LogicalAnd => "LogicalAnd",
+            BinaryOpType::LogicalOr => "LogicalOr",
 
-            BinaryOpType::LeftShift    => "LeftShift",
-            BinaryOpType::RightShift   => "RightShift",
+            BinaryOpType::LeftShift => "LeftShift",
+            BinaryOpType::RightShift => "RightShift",
 
-            BinaryOpType::Exponent     => "Exponent",
+            BinaryOpType::Exponent => "Exponent",
         };
         write!(f, "{}", name)
     }
@@ -59,24 +57,23 @@ impl fmt::Display for BinaryOpType {
 impl fmt::Display for UnaryOpType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let name = match self {
-            UnaryOpType::LogicalNot    => "LogicalNot",
-            UnaryOpType::BitwiseNot    => "BitwiseNot",
-            UnaryOpType::Minus         => "Minus",
+            UnaryOpType::LogicalNot => "LogicalNot",
+            UnaryOpType::BitwiseNot => "BitwiseNot",
+            UnaryOpType::Minus => "Minus",
         };
         write!(f, "{}", name)
     }
 }
 
-
 impl fmt::Display for ScalarT {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let val = match self {
-            ScalarT::U8(x)  => x.to_string(),
+            ScalarT::U8(x) => x.to_string(),
             ScalarT::U16(x) => x.to_string(),
             ScalarT::U32(x) => x.to_string(),
             ScalarT::U64(x) => x.to_string(),
 
-            ScalarT::I8(x)  => x.to_string(),
+            ScalarT::I8(x) => x.to_string(),
             ScalarT::I16(x) => x.to_string(),
             ScalarT::I32(x) => x.to_string(),
             ScalarT::I64(x) => x.to_string(),
@@ -88,15 +85,14 @@ impl fmt::Display for ScalarT {
     }
 }
 
-
 impl fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Expression::Scalar(s)            => write!(f, "{}", s),
-            Expression::Variable(name)       => write!(f, "Variable(\"{}\")", name),
-            Expression::UnaryOp(op, x)       => write!(f, "{}{}", op, x),
-            Expression::BinaryOp(l, op, r)   => write!(f, "{}({}, {})", op, l, r),
-            Expression::Call(call, params)   => {
+            Expression::Scalar(s) => write!(f, "{}", s),
+            Expression::Variable(name) => write!(f, "Variable(\"{}\")", name),
+            Expression::UnaryOp(op, x) => write!(f, "{}{}", op, x),
+            Expression::BinaryOp(l, op, r) => write!(f, "{}({}, {})", op, l, r),
+            Expression::Call(call, params) => {
                 let mut param_str = format!("");
                 // TODO: Make it functional. Couldn't find a neater way using fold.
                 for (iparam, param) in params.iter().enumerate() {
@@ -108,8 +104,8 @@ impl fmt::Display for Expression {
                 }
 
                 write!(f, "Call({},[{}])", call, param_str)
-            },
-            Expression::Subscript(aggregate, indices)   => {
+            }
+            Expression::Subscript(aggregate, indices) => {
                 let mut idx_str = format!("");
                 // TODO: Make it functional. Couldn't find a neater way using fold.
                 for (i_idx, idx) in indices.iter().enumerate() {
@@ -120,8 +116,8 @@ impl fmt::Display for Expression {
                     };
                 }
 
-                write!(f, "Subscript({},[{}])", aggregate,idx_str)
-            },
+                write!(f, "Subscript({},[{}])", aggregate, idx_str)
+            }
         }
     }
 }

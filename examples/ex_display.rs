@@ -1,5 +1,5 @@
-use symoxide::variables;
 use symoxide::operations as ops;
+use symoxide::variables;
 
 fn main() {
     let (x, y, z) = variables!("x y z");

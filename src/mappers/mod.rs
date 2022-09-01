@@ -1,4 +1,4 @@
-pub mod identity;
-pub mod fold;
 pub mod combine;
+pub mod fold;
+pub mod identity;
 pub mod walk;
