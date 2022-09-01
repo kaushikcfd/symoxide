@@ -4,14 +4,7 @@ use env_logger;
 
 fn main() {
     env_logger::init();
-    // let expr = parse_expr(" ( (x))  ");
-    // println!("Parsed as {}", expr);
-    // Using this to measure the time in micro seconds
-    let n = 10;
-
-    for i in 0..n {
-        let code = format!("x + z(y + a{}, b + c, )", i);
-        let expr = parse_expr(&code[..]);
-        println!("Parsed as {}", expr);
-    }
+    let code = "foo(x[0.2343242343e4, i, 1], -2*x)";
+    let expr = parse_expr(&code[..]);
+    println!("Parsed as {}", expr);
 }
