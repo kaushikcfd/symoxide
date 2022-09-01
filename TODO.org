@@ -26,12 +26,14 @@
 - [X] Implement get_dependencies
 - [ ] Implement substitute
 - [ ] Implement evaluate
+- [ ] Make a deduplicating helper function
+- [ ] Implement equality mapper
 - [X] Implement Bitwise Operators
+- [ ] Implement Cached variants of mappers
 - [ ] Implement out sub-language as the `eval!` macro
 - [ ] Add Continuous Integration
 - [X] ~expression_trees~ is a terrible name, probably rename it to something else?
   - [X] Rename to SymOxide
 - [ ] Start working on a design doc
-- [ ] Make a deduplicating helper function
 - [ ] Visualize to graphviz
 - [ ] Make public
