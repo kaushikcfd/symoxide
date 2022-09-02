@@ -35,16 +35,22 @@ impl EqualityMapper {
         match self.cache.get(&cache_key) {
             Some(x) => *x,
             None => {
-                let result = match &*(expr1.clone()) {
-                    Expression::Scalar(s) => self.map_scalar(*s, expr2),
-                    Expression::Variable(name) => self.map_variable(name.to_string(), expr2),
-                    Expression::UnaryOp(op, x) => self.map_unary_op(*op, x.clone(), expr2),
-                    Expression::BinaryOp(l, op, r) => {
-                        self.map_binary_op(l.clone(), *op, r.clone(), expr2)
-                    }
-                    Expression::Call(call, params) => self.map_call(call.clone(), &params, expr2),
-                    Expression::Subscript(agg, indices) => {
-                        self.map_subscript(agg.clone(), &indices, expr2)
+                let result = if Rc::ptr_eq(&expr1, &expr2) {
+                    true
+                } else {
+                    match &*(expr1.clone()) {
+                        Expression::Scalar(s) => self.map_scalar(*s, expr2),
+                        Expression::Variable(name) => self.map_variable(name.to_string(), expr2),
+                        Expression::UnaryOp(op, x) => self.map_unary_op(*op, x.clone(), expr2),
+                        Expression::BinaryOp(l, op, r) => {
+                            self.map_binary_op(l.clone(), *op, r.clone(), expr2)
+                        }
+                        Expression::Call(call, params) => {
+                            self.map_call(call.clone(), &params, expr2)
+                        }
+                        Expression::Subscript(agg, indices) => {
+                            self.map_subscript(agg.clone(), &indices, expr2)
+                        }
                     }
                 };
                 self.cache.insert(cache_key, result);
@@ -122,7 +128,11 @@ impl EqualityMapper {
 
 // }}}
 
-pub fn are_structurally_equal(expr1: Rc<Expression>, expr2: Rc<Expression>) -> bool {
-    let mut mapper = EqualityMapper { cache: HashMap::new() };
-    mapper.visit(expr1, expr2)
+pub fn are_structurally_equal(expr1: &Expression, expr2: &Expression) -> bool {
+    if std::ptr::eq(expr1, expr2) {
+        true
+    } else {
+        let mut mapper = EqualityMapper { cache: HashMap::new() };
+        mapper.visit(Rc::new(expr1.clone()), Rc::new(expr2.clone()))
+    }
 }

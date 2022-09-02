@@ -121,3 +121,23 @@ impl fmt::Display for Expression {
         }
     }
 }
+
+impl fmt::Debug for ScalarT {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let val = match self {
+            ScalarT::U8(x) => format!("U8({})", x),
+            ScalarT::U16(x) => format!("U16({})", x),
+            ScalarT::U32(x) => format!("U32({})", x),
+            ScalarT::U64(x) => format!("U64({})", x),
+
+            ScalarT::I8(x) => format!("I8({})", x),
+            ScalarT::I16(x) => format!("I16({})", x),
+            ScalarT::I32(x) => format!("I32({})", x),
+            ScalarT::I64(x) => format!("I64({})", x),
+
+            ScalarT::F32(x) => format!("F32({})", x),
+            ScalarT::F64(x) => format!("F64({})", x),
+        };
+        write!(f, "{}", val)
+    }
+}

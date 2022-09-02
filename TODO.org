@@ -29,11 +29,14 @@
 - [ ] Implement evaluate
 - [ ] Make a deduplicating helper function
 - [X] Implement equality mapper
-- [ ] Implement PartialEq trait for Rc<Expression>
+- [X] Implement PartialEq trait for Rc<Expression>
+  - Not possible.
 - [X] Implement Bitwise Operators
 - [ ] Implement Cached variants of mappers
 - [ ] Implement out sub-language as the `eval!` macro
 - [ ] Add Continuous Integration
+- [ ] StringifyMapper as Display and Repr for Debug.
+- [X] Repr should truncate results with ~(...)~.
 - [X] ~expression_trees~ is a terrible name, probably rename it to something else?
   - [X] Rename to SymOxide
 - [ ] Start working on a design doc

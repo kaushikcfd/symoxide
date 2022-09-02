@@ -36,6 +36,7 @@ pub enum ScalarT {
     F64(f64),
 }
 
+#[derive(Clone)]
 pub enum Expression {
     Scalar(ScalarT),
     Variable(String),

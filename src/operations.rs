@@ -19,7 +19,15 @@
 // SOFTWARE.
 
 use crate::define_binary_op;
+use crate::mapper_impls::equality::are_structurally_equal;
+use crate::primitives::Expression;
 
 define_binary_op!(add, Sum);
 define_binary_op!(mul, Product);
 define_binary_op!(div, Divide);
+
+impl PartialEq for Expression {
+    fn eq(&self, other: &Self) -> bool {
+        are_structurally_equal(self, other)
+    }
+}
