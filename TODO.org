@@ -28,7 +28,8 @@
 - [ ] Implement substitute
 - [ ] Implement evaluate
 - [ ] Make a deduplicating helper function
-- [ ] Implement equality mapper
+- [X] Implement equality mapper
+- [ ] Implement PartialEq trait for Rc<Expression>
 - [X] Implement Bitwise Operators
 - [ ] Implement Cached variants of mappers
 - [ ] Implement out sub-language as the `eval!` macro
