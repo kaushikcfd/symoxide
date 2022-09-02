@@ -30,3 +30,5 @@ pub use operations::{add, div, mul};
 pub use primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 pub mod macros;
 pub mod parse;
+pub use mapper_impls::equality::are_structurally_equal;
+mod utils;

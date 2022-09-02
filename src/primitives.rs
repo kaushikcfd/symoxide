@@ -20,7 +20,7 @@
 
 use std::rc::Rc;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum ScalarT {
     U8(u8),
     U16(u16),
@@ -45,7 +45,7 @@ pub enum Expression {
     Subscript(Rc<Expression>, Vec<Rc<Expression>>),
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum BinaryOpType {
     Sum,
     Subtract,
@@ -74,7 +74,7 @@ pub enum BinaryOpType {
     Exponent,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UnaryOpType {
     LogicalNot,
     BitwiseNot,
