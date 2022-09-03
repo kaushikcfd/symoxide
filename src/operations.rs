@@ -22,6 +22,7 @@ use crate::mapper_impls::equality::are_structurally_equal;
 use crate::primitives::Expression;
 use crate::{define_binary_op, impl_scalar_to_expr};
 use std::rc::Rc;
+use std::iter::IntoIterator;
 
 impl PartialEq for Expression {
     fn eq(&self, other: &Self) -> bool {
@@ -59,5 +60,10 @@ define_binary_op!(equal, Equal);
 define_binary_op!(not_equal, GreaterEqual);
 define_binary_op!(left_shift, LeftShift);
 define_binary_op!(right_shift, RightShift);
+
+pub fn index<T: IntoIterator<Item=Rc<Expression>>>(agg: Rc<Expression>, indices: T) -> Rc<Expression> {
+    let vec_indices = indices.into_iter().collect();
+    Rc::new(Expression::Subscript(agg.clone(), vec_indices))
+}
 
 // vim : fdm=marker

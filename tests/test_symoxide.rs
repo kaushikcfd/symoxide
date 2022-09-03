@@ -37,4 +37,10 @@ fn test_parser() {
 
     assert_eq!(parse("a >= 1"), ops::greater_equal(&a, &1));
     assert_eq!(parse("a <= 1"), ops::less_equal(&a, &1));
+
+    let (foo, bar) = sym::variables!("foo bar");
+    assert_eq!(parse("foo[2, bar]"), ops::index(foo, [scalar!(2), bar]));
+
+    let (foo, bar, baz) = sym::variables!("foo bar baz");
+    assert_eq!(parse("foo[2, bar, baz]"), ops::index(foo, vec![scalar!(2), bar, baz]));
 }
