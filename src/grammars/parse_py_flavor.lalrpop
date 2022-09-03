@@ -129,5 +129,8 @@ IntLiteral: i32 = {
 }
 
 FloatLiteral: f64 = {
+    // f64 with the decimal point
     <s:r"((-?)([1-9][0-9]*)|0)\.([0-9]*)(([eE]((-?)([1-9][0-9]*)|0))?)"> => f64::from_str(s).unwrap(),
+    // f64 without the decimal point
+    <s:r"((-?)([1-9][0-9]*)|0)([eE]((-?)([1-9][0-9]*)|0))"> => f64::from_str(s).unwrap(),
 }

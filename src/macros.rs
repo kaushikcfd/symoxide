@@ -21,16 +21,46 @@
 #[macro_export]
 macro_rules! define_binary_op {
     ($fnName: ident, $exprName: ident) => {
-        pub fn $fnName(x1: &std::rc::Rc<$crate::primitives::Expression>,
-                       x2: &std::rc::Rc<$crate::primitives::Expression>)
+        pub fn $fnName(x1: &dyn $crate::operations::ConvertibleToExpr,
+                       x2: &dyn $crate::operations::ConvertibleToExpr)
                        -> std::rc::Rc<$crate::primitives::Expression> {
             std::rc::Rc::new(
                         $crate::primitives::Expression::BinaryOp(
-                            std::rc::Rc::clone(x1),
+                            x1.to_expr(),
                             $crate::primitives::BinaryOpType::$exprName,
-                            std::rc::Rc::clone(x2),
+                            x2.to_expr(),
                         )
                     )
+        }
+    };
+}
+
+
+#[macro_export]
+macro_rules! rust_ty_to_scalar_type {
+    (i8) => {$crate::primitives::ScalarT::I8};
+    (i16) => {$crate::primitives::ScalarT::I16};
+    (i32) => {$crate::primitives::ScalarT::I32};
+    (i64) => {$crate::primitives::ScalarT::I64};
+
+    (u8) => {$crate::primitives::ScalarT::U8};
+    (u16) => {$crate::primitives::ScalarT::U16};
+    (u32) => {$crate::primitives::ScalarT::U32};
+    (u64) => {$crate::primitives::ScalarT::U64};
+
+
+    (f32) => {$crate::primitives::ScalarT::F32};
+    (f64) => {$crate::primitives::ScalarT::F64};
+}
+
+
+#[macro_export]
+macro_rules! impl_scalar_to_expr {
+    ($rustT:tt) => {
+        impl ConvertibleToExpr for $rustT {
+            fn to_expr(&self) -> Rc<Expression> {
+                std::rc::Rc::new($crate::Expression::Scalar($crate::rust_ty_to_scalar_type!($rustT)(*self)))
+            }
         }
     };
 }

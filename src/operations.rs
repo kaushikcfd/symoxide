@@ -18,16 +18,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::define_binary_op;
 use crate::mapper_impls::equality::are_structurally_equal;
 use crate::primitives::Expression;
-
-define_binary_op!(add, Sum);
-define_binary_op!(mul, Product);
-define_binary_op!(div, Divide);
+use crate::{define_binary_op, impl_scalar_to_expr};
+use std::rc::Rc;
 
 impl PartialEq for Expression {
     fn eq(&self, other: &Self) -> bool {
         are_structurally_equal(self, other)
     }
 }
+
+// {{{ define ConvertibleToExpr trait
+
+pub trait ConvertibleToExpr {
+    fn to_expr(&self) -> Rc<Expression>;
+}
+
+impl ConvertibleToExpr for Rc<Expression> {
+    fn to_expr(&self) -> Rc<Expression> {
+        self.clone()
+    }
+}
+
+impl_scalar_to_expr!(i32);
+impl_scalar_to_expr!(f64);
+
+// }}}
+
+define_binary_op!(add, Sum);
+define_binary_op!(mul, Product);
+define_binary_op!(div, Divide);
+define_binary_op!(floor_div, FloorDiv);
+define_binary_op!(modulo, Modulo);
+define_binary_op!(less, Less);
+define_binary_op!(less_equal, LessEqual);
+define_binary_op!(greater, Greater);
+define_binary_op!(greater_equal, GreaterEqual);
+define_binary_op!(equal, Equal);
+define_binary_op!(not_equal, GreaterEqual);
+
+// vim : fdm=marker
