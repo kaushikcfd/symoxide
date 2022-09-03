@@ -1,7 +1,7 @@
 use proc_macro;
 use lazy_static::lazy_static;
 use proc_macro::{TokenStream};
-use syn::{parse, LitStr, Result, Expr, parse_str};
+use syn::{parse, LitStr, LitInt, LitFloat, Result, Expr, parse_str};
 use syn::punctuated::Punctuated;
 use syn::token::Comma;
 use regex::Regex;
@@ -50,3 +50,27 @@ pub fn variables(token_stream: TokenStream) -> TokenStream {
         Err(_) => {panic!("split! expects a string literal.")}
     }
 }
+
+
+#[proc_macro]
+pub fn scalar(token_stream: TokenStream) -> TokenStream {
+    let item: Result<LitInt> = parse(token_stream.clone());
+    match item {
+        Ok(x) => {
+            let gen = quote! { std::rc::Rc::new(symoxide::Expression::Scalar(symoxide::ScalarT::I32(#x))) };
+            gen.into()
+        }
+        Err(_) => {
+            let item: Result<LitFloat> = parse(token_stream);
+            match item {
+                Ok(x) => {
+                    let gen = quote! { std::rc::Rc::new(symoxide::Expression::Scalar(symoxide::ScalarT::F64(#x))) };
+                    gen.into()
+                }
+                Err(_) => panic!("split! expects a int/float literal.")
+            }
+        }
+    }
+}
+
+// vim: fdm=marker
