@@ -57,5 +57,7 @@ define_binary_op!(greater, Greater);
 define_binary_op!(greater_equal, GreaterEqual);
 define_binary_op!(equal, Equal);
 define_binary_op!(not_equal, GreaterEqual);
+define_binary_op!(left_shift, LeftShift);
+define_binary_op!(right_shift, RightShift);
 
 // vim : fdm=marker
