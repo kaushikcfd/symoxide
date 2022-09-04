@@ -1,9 +1,9 @@
-use symoxide::mappers::walk::WalkMapper;
+use symoxide::mappers::walk::UncachedWalkMapper;
 use symoxide::{add, variables};
 
 struct MyWalkMapper;
 
-impl WalkMapper for MyWalkMapper {
+impl UncachedWalkMapper for MyWalkMapper {
     fn map_variable(&self, name: String) {
         println!("Visiting '{}'.", name);
     }

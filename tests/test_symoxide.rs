@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+use std::collections::HashSet;
 use sym::scalar;
 use symoxide as sym;
 use symoxide::operations as ops;
@@ -42,5 +43,22 @@ fn test_parser() {
     assert_eq!(parse("foo[2, bar]"), ops::index(foo, [scalar!(2), bar]));
 
     let (foo, bar, baz) = sym::variables!("foo bar baz");
-    assert_eq!(parse("foo[2, bar, baz]"), ops::index(foo, vec![scalar!(2), bar, baz]));
+    assert_eq!(parse("foo[2, bar, baz]"),
+               ops::index(foo, vec![scalar!(2), bar, baz]));
+}
+
+#[test]
+fn test_get_dependencies() {
+    let expr = parse("2*foo(bar, baz[1.0, quux])");
+    assert_eq!(sym::get_dependencies(&expr),
+               HashSet::from(["foo".to_string(),
+                              "bar".to_string(),
+                              "baz".to_string(),
+                              "quux".to_string()]))
+}
+
+#[test]
+fn test_get_num_nodes() {
+    let expr = parse("2*foo(bar, baz[1.0, quux]) - 1729");
+    assert_eq!(sym::get_num_nodes(&expr), 11);
 }

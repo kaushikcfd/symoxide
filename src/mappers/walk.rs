@@ -18,12 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+use crate::mappers::CachedMapper;
 use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::utils::ExpressionRawPointer;
 use std::rc::Rc;
 
 // {{{ WalkMapper
 
-pub trait WalkMapper {
+pub trait UncachedWalkMapper {
     fn should_walk(&self, _expr: &Expression) -> bool {
         true
     }
@@ -178,6 +180,72 @@ pub trait MutWalkMapper {
         self.visit(agg);
         for idx in indices {
             self.visit(idx);
+        }
+    }
+}
+
+// }}}
+
+// {{{ WalkMapper
+
+pub trait WalkMapper: CachedMapper<ExpressionRawPointer, bool> {
+    fn should_walk(&self, _expr: &Expression) -> bool {
+        true
+    }
+
+    fn post_walk(&mut self, _expr: &Expression) {}
+
+    fn visit(&mut self, expr: Rc<Expression>) {
+        let cache_key = ExpressionRawPointer(expr.clone());
+
+        match self.query_cache(&cache_key) {
+            Some(true) => {}
+            None => {
+                if self.should_walk(&expr) {
+                    match &*expr.clone() {
+                        Expression::Scalar(s) => self.map_scalar(&s),
+                        Expression::Variable(name) => self.map_variable(name.to_string()),
+                        Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), x.clone()),
+                        Expression::BinaryOp(l, op, r) => {
+                            self.map_binary_op(l.clone(), op.clone(), r.clone())
+                        }
+                        Expression::Call(call, params) => self.map_call(call.clone(), &params),
+                        Expression::Subscript(agg, indices) => {
+                            self.map_subscript(agg.clone(), &indices)
+                        }
+                    };
+                    self.post_walk(&expr);
+                };
+                self.add_to_cache(cache_key, true);
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    fn map_scalar(&mut self, _value: &ScalarT) {}
+
+    fn map_variable(&mut self, _name: String) {}
+
+    fn map_unary_op(&mut self, _op: UnaryOpType, x: Rc<Expression>) {
+        self.visit(x);
+    }
+
+    fn map_binary_op(&mut self, left: Rc<Expression>, _op: BinaryOpType, right: Rc<Expression>) {
+        self.visit(left.clone());
+        self.visit(right.clone());
+    }
+
+    fn map_call(&mut self, call: Rc<Expression>, params: &Vec<Rc<Expression>>) {
+        self.visit(call.clone());
+        for param in params {
+            self.visit(param.clone());
+        }
+    }
+
+    fn map_subscript(&mut self, agg: Rc<Expression>, indices: &Vec<Rc<Expression>>) {
+        self.visit(agg.clone());
+        for idx in indices {
+            self.visit(idx.clone());
         }
     }
 }

@@ -3,6 +3,8 @@ use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 use std::fmt;
 use std::rc::Rc;
 
+// TODO: Use Cached Mapper here?
+
 pub struct Reprifier {
     truncation_level: u32,
 }

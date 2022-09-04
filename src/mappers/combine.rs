@@ -18,12 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+use crate::mappers::CachedMapper;
+use crate::utils::ExpressionRawPointer;
 use crate::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 use std::rc::Rc;
 
-// {{{ CombineMapper
+// {{{ UncachedCombineMapper
 
-pub trait CombineMapper: Sized {
+pub trait UnachedCombineMapper: Sized {
     type Output;
 
     fn combine(&self, values: &[Self::Output]) -> Self::Output;
@@ -113,3 +115,70 @@ pub trait CombineMapperWithContext: Sized {
 }
 
 // }}}
+
+// {{{ CombineMapper
+
+pub trait CombineMapper: Sized + CachedMapper<ExpressionRawPointer, Self::Output> {
+    type Output: Clone;
+
+    fn combine(&mut self, values: &[Self::Output]) -> Self::Output;
+
+    fn visit(&mut self, expr: Rc<Expression>) -> Self::Output {
+        let cache_key = ExpressionRawPointer(expr.clone());
+
+        match self.query_cache(&cache_key) {
+            Some(x) => x.clone(),
+            None => {
+                let result = match &*expr.clone() {
+                    Expression::Scalar(s) => self.map_scalar(&s),
+                    Expression::Variable(name) => self.map_variable(name.to_string()),
+                    Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), x.clone()),
+                    Expression::BinaryOp(l, op, r) => {
+                        self.map_binary_op(l.clone(), op.clone(), r.clone())
+                    }
+                    Expression::Call(call, params) => self.map_call(call.clone(), &params),
+                    Expression::Subscript(agg, indices) => {
+                        self.map_subscript(agg.clone(), &indices)
+                    }
+                };
+
+                self.add_to_cache(cache_key, result.clone());
+                result
+            }
+        }
+    }
+
+    fn map_scalar(&mut self, value: &ScalarT) -> Self::Output;
+    fn map_variable(&mut self, name: String) -> Self::Output;
+
+    fn map_unary_op(&mut self, _op: UnaryOpType, x: Rc<Expression>) -> Self::Output {
+        self.visit(x.clone())
+    }
+
+    fn map_binary_op(&mut self, left: Rc<Expression>, _op: BinaryOpType, right: Rc<Expression>)
+                     -> Self::Output {
+        let l_rec = self.visit(left.clone());
+        let r_rec = self.visit(right.clone());
+        self.combine(&[l_rec, r_rec])
+    }
+
+    fn map_call(&mut self, call: Rc<Expression>, params: &Vec<Rc<Expression>>) -> Self::Output {
+        let call_rec = self.visit(call.clone());
+        let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x.clone())).collect();
+        let combined_params = self.combine(&rec_params);
+        self.combine(&[call_rec, combined_params])
+    }
+
+    fn map_subscript(&mut self, agg: Rc<Expression>, indices: &Vec<Rc<Expression>>)
+                     -> Self::Output {
+        let agg_rec = self.visit(agg.clone());
+        let rec_indices: Vec<Self::Output> =
+            indices.iter().map(|x| self.visit(x.clone())).collect();
+        let combined_params = self.combine(&rec_indices);
+        self.combine(&[agg_rec, combined_params])
+    }
+}
+
+// }}}
+
+// vim: fdm=marker

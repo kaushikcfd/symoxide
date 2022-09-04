@@ -18,20 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-pub mod builders;
-pub mod display;
-pub mod macros;
-pub mod mapper_impls;
-pub mod mappers;
-pub mod operations;
-pub mod parse;
-pub mod primitives;
-mod utils;
+use crate::mappers::walk::WalkMapper;
+use crate::mappers::CachedMapper;
+use crate::primitives::Expression;
+use crate::utils::ExpressionRawPointer;
+use std::collections::HashMap;
+use std::rc::Rc;
 
-pub use builders::var;
-pub use macro_defs::{scalar, variables};
-pub use mapper_impls::dependency::get_dependencies;
-pub use mapper_impls::equality::are_structurally_equal;
-pub use mapper_impls::node_counter::get_num_nodes;
-pub use operations::{add, div, mul};
-pub use primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+struct NodeCounter {
+    num_nodes: u32,
+
+    cache: HashMap<ExpressionRawPointer, bool>,
+}
+
+impl CachedMapper<ExpressionRawPointer, bool> for NodeCounter {
+    fn query_cache(&self, key: &ExpressionRawPointer) -> Option<&bool> {
+        self.cache.get(&key)
+    }
+    fn add_to_cache(&mut self, key: ExpressionRawPointer, value: bool) {
+        self.cache.insert(key, value);
+    }
+}
+
+impl WalkMapper for NodeCounter {
+    fn post_walk(&mut self, _expr: &Expression) {
+        self.num_nodes += 1;
+    }
+}
+
+pub fn get_num_nodes(expr: &Expression) -> u32 {
+    let mut node_counter = NodeCounter { num_nodes: 0,
+                                         cache: HashMap::new() };
+    node_counter.visit(Rc::new(expr.clone()));
+    node_counter.num_nodes
+}
