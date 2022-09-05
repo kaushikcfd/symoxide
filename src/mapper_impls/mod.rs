@@ -1,3 +1,4 @@
+pub mod deduplicator;
 pub mod dependency;
 pub mod equality;
 pub mod hasher;

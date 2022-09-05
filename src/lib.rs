@@ -30,6 +30,7 @@ mod utils;
 
 pub use builders::var;
 pub use macro_defs::{scalar, variables};
+pub use mapper_impls::deduplicator::deduplicate_nodes;
 pub use mapper_impls::dependency::get_dependencies;
 pub use mapper_impls::equality::are_structurally_equal;
 pub use mapper_impls::hasher::get_hasher;
