@@ -18,12 +18,69 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+use crate::mappers::CachedMapper;
+use crate::utils::ExpressionRawPointer;
 use crate::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 use std::rc::Rc;
 
 // {{{ IdentityMapper
 
-pub trait IdentityMapper {
+pub trait IdentityMapper: CachedMapper<ExpressionRawPointer, Rc<Expression>> {
+    fn visit(&mut self, expr: Rc<Expression>) -> Rc<Expression> {
+        let cache_key = ExpressionRawPointer(expr.clone());
+        match self.query_cache(&cache_key) {
+            Some(x) => x.clone(),
+            None => {
+                let result = match &*expr {
+                    Expression::Scalar(s) => self.map_scalar(&s),
+                    Expression::Variable(name) => self.map_variable(name.to_string()),
+                    Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), &x),
+                    Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+                    Expression::Call(call, params) => self.map_call(&call, &params),
+                    Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
+                };
+                self.add_to_cache(cache_key, result.clone());
+                result
+            }
+        }
+    }
+
+    fn map_scalar(&mut self, value: &ScalarT) -> Rc<Expression> {
+        Rc::new(Expression::Scalar(value.clone()))
+    }
+
+    fn map_variable(&mut self, name: String) -> Rc<Expression> {
+        Rc::new(Expression::Variable(name))
+    }
+
+    fn map_unary_op(&mut self, op: UnaryOpType, x: &Rc<Expression>) -> Rc<Expression> {
+        Rc::new(Expression::UnaryOp(op, self.visit(x.clone())))
+    }
+
+    fn map_binary_op(&mut self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>)
+                     -> Rc<Expression> {
+        Rc::new(Expression::BinaryOp(self.visit(left.clone()), op, self.visit(right.clone())))
+    }
+
+    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Rc<Expression> {
+        Rc::new(Expression::Call(self.visit(call.clone()),
+                                 params.iter()
+                                       .map(|param| self.visit(param.clone()))
+                                       .collect()))
+    }
+
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
+                     -> Rc<Expression> {
+        Rc::new(Expression::Subscript(self.visit(agg.clone()),
+                                      indices.iter().map(|idx| self.visit(idx.clone())).collect()))
+    }
+}
+
+// }}}
+
+// {{{ UncachedIdentityMapper
+
+pub trait UncachedIdentityMapper {
     fn visit(&self, expr: &Expression) -> Rc<Expression> {
         match expr {
             Expression::Scalar(s) => self.map_scalar(&s),
@@ -114,6 +171,65 @@ pub trait IdentityMapperWithContext {
                      -> Rc<Expression> {
         Rc::new(Expression::Subscript(self.visit(agg, context),
                                       indices.iter().map(|idx| self.visit(idx, context)).collect()))
+    }
+}
+
+// }}}
+
+// {{{ IdentityMapperWithCustomCacheKey
+
+pub trait IdentityMapperWithCustomCacheKey: CachedMapper<Self::CacheKey, Rc<Expression>> {
+    type CacheKey;
+
+    fn get_cache_key(&self, expr: Rc<Expression>) -> Self::CacheKey;
+
+    fn visit(&mut self, expr: Rc<Expression>) -> Rc<Expression> {
+        let cache_key = self.get_cache_key(expr.clone());
+        match self.query_cache(&cache_key) {
+            Some(x) => x.clone(),
+            None => {
+                let result = match &*expr {
+                    Expression::Scalar(s) => self.map_scalar(&s),
+                    Expression::Variable(name) => self.map_variable(name.to_string()),
+                    Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), &x),
+                    Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
+                    Expression::Call(call, params) => self.map_call(&call, &params),
+                    Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
+                };
+                self.add_to_cache(cache_key, result.clone());
+                result
+            }
+        }
+    }
+
+    fn map_scalar(&mut self, value: &ScalarT) -> Rc<Expression> {
+        Rc::new(Expression::Scalar(value.clone()))
+    }
+
+    fn map_variable(&mut self, name: String) -> Rc<Expression> {
+        Rc::new(Expression::Variable(name))
+    }
+
+    fn map_unary_op(&mut self, op: UnaryOpType, x: &Rc<Expression>) -> Rc<Expression> {
+        Rc::new(Expression::UnaryOp(op, self.visit(x.clone())))
+    }
+
+    fn map_binary_op(&mut self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>)
+                     -> Rc<Expression> {
+        Rc::new(Expression::BinaryOp(self.visit(left.clone()), op, self.visit(right.clone())))
+    }
+
+    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Rc<Expression> {
+        Rc::new(Expression::Call(self.visit(call.clone()),
+                                 params.iter()
+                                       .map(|param| self.visit(param.clone()))
+                                       .collect()))
+    }
+
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
+                     -> Rc<Expression> {
+        Rc::new(Expression::Subscript(self.visit(agg.clone()),
+                                      indices.iter().map(|idx| self.visit(idx.clone())).collect()))
     }
 }
 

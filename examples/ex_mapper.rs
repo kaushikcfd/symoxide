@@ -1,5 +1,5 @@
 use std::rc::Rc;
-use symoxide::mappers::identity::IdentityMapper;
+use symoxide::mappers::identity::UncachedIdentityMapper as IdentityMapper;
 use symoxide::Expression;
 use symoxide::{add, variables};
 
