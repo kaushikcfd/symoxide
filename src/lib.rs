@@ -24,7 +24,7 @@ pub mod macros;
 pub mod mapper_impls;
 pub mod mappers;
 pub mod operations;
-pub mod parse;
+mod parse;
 pub mod primitives;
 mod utils;
 
@@ -33,7 +33,9 @@ pub use macro_defs::{scalar, variables};
 pub use mapper_impls::deduplicator::deduplicate_nodes;
 pub use mapper_impls::dependency::get_dependencies;
 pub use mapper_impls::equality::are_structurally_equal;
+pub use mapper_impls::graphvizifier::show_dot;
 pub use mapper_impls::hasher::get_hasher;
 pub use mapper_impls::node_counter::get_num_nodes;
 pub use operations::{add, div, mul};
+pub use parse::parse_expr as parse;
 pub use primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};

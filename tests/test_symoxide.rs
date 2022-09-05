@@ -23,7 +23,7 @@ use std::collections::HashSet;
 use sym::scalar;
 use symoxide as sym;
 use symoxide::operations as ops;
-use symoxide::parse::parse_expr as parse;
+use symoxide::parse;
 
 #[test]
 fn test_parser() {
