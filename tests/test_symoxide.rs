@@ -62,3 +62,30 @@ fn test_get_num_nodes() {
     let expr = parse("2*foo(bar, baz[1.0, quux]) - 1729");
     assert_eq!(sym::get_num_nodes(&expr), 11);
 }
+
+#[test]
+fn test_get_hasher() {
+    let (foo, bar, baz, quux) = sym::variables!("foo bar baz quux");
+    let (two, two_dup, pi) = (scalar!(2), scalar!(2), scalar!(3.14159265359));
+    // exp = 3.14159265359 * foo[bar << 2, baz + 2, 2 > quux]
+    let expr = ops::mul(&pi,
+                        &ops::index(foo.clone(),
+                                    [ops::left_shift(&bar, &two),
+                                     ops::add(&baz, &two),
+                                     ops::greater(&two_dup, &quux)]));
+    let hasher = sym::get_hasher(expr.clone());
+
+    // {{{ necessary test that 2 different object instances hash to the same value
+
+    assert!(!std::rc::Rc::ptr_eq(&two, &two_dup));
+    assert_eq!(hasher.get(two.clone()), hasher.get(two_dup.clone()));
+
+    // }}}
+
+    assert_ne!(foo.clone(), bar.clone());
+    assert_ne!(bar.clone(), baz.clone());
+    for subexpr in [foo, bar, baz, quux, two, two_dup, pi] {
+        assert_eq!(hasher.get(subexpr.clone()), hasher.get(subexpr.clone()));
+    }
+    assert_eq!(expr.clone(), expr.clone());
+}

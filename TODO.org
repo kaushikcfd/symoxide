@@ -39,6 +39,7 @@
 - [X] Repr should truncate results with ~(...)~.
 - [X] ~expression_trees~ is a terrible name, probably rename it to something else?
   - [X] Rename to SymOxide
+- [ ] Implement ~scalars!()~ which is similar to ~variables!~.
 - [ ] Start working on a design doc
 - [ ] Visualize to graphviz
 - [ ] Make public
