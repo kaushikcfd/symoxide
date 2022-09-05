@@ -45,19 +45,57 @@ impl CachedMapper<ExpressionRawPointer, String> for Graphvizifier {
     }
 }
 
+fn pprint_binop(op: &BinaryOpType) -> &str {
+    match op {
+        BinaryOpType::Sum => "+",
+        BinaryOpType::Subtract => "-",
+        BinaryOpType::Product => "*",
+        BinaryOpType::Divide => "/",
+        BinaryOpType::FloorDiv => "//",
+        BinaryOpType::Modulo => "%",
+
+        BinaryOpType::Equal => "==",
+        BinaryOpType::NotEqual => "!=",
+        BinaryOpType::Greater => ">",
+        BinaryOpType::GreaterEqual => ">=",
+        BinaryOpType::Less => "<",
+        BinaryOpType::LessEqual => "<=",
+
+        BinaryOpType::BitwiseOr => "|",
+        BinaryOpType::BitwiseXor => "^",
+        BinaryOpType::BitwiseAnd => "&",
+
+        BinaryOpType::LogicalAnd => "and",
+        BinaryOpType::LogicalOr => "or",
+
+        BinaryOpType::LeftShift => "<<",
+        BinaryOpType::RightShift => ">>",
+
+        BinaryOpType::Exponent => "**",
+    }
+}
+
+fn pprint_uop(op: &UnaryOpType) -> &str {
+    match op {
+        UnaryOpType::LogicalNot => "not",
+        UnaryOpType::BitwiseNot => "~",
+        UnaryOpType::Minus => "-",
+    }
+}
+
 impl FoldMapper for Graphvizifier {
     type Output = String;
 
     fn map_scalar(&mut self, value: &ScalarT) -> Self::Output {
         let node_name = self.vng.get("expr");
         self.node_descrs
-            .push(format!("{} [label={}]", node_name, value));
+            .push(format!("{} [label=\"{}\"]", node_name, value));
         node_name.to_string()
     }
     fn map_variable(&mut self, name: String) -> Self::Output {
         let node_name = self.vng.get("expr");
         self.node_descrs
-            .push(format!("{} [label={}]", node_name, name));
+            .push(format!("{} [label=\"{}\"]", node_name, name));
         node_name.to_string()
     }
     fn map_unary_op(&mut self, op: UnaryOpType, x: Rc<Expression>) -> Self::Output {
@@ -65,7 +103,7 @@ impl FoldMapper for Graphvizifier {
         let x_name = self.visit(x.clone());
 
         self.node_descrs
-            .push(format!("{} [label={}]", node_name, op));
+            .push(format!("{} [label=\"{}\"]", node_name, pprint_uop(&op)));
         self.edge_descrs
             .push(format!("{} -> {}", x_name, node_name));
         node_name.to_string()
@@ -77,7 +115,7 @@ impl FoldMapper for Graphvizifier {
         let right_node_name = self.visit(right.clone());
 
         self.node_descrs
-            .push(format!("{} [label={}]", node_name, op));
+            .push(format!("{} [label=\"{}\"]", node_name, pprint_binop(&op)));
         self.edge_descrs
             .push(format!("{} -> {}", left_node_name, node_name));
         self.edge_descrs
@@ -91,17 +129,17 @@ impl FoldMapper for Graphvizifier {
                                              .enumerate()
                                              .map(|(i, _)| format!("arg{}", i))
                                              .collect();
-        let label = format!("\"Fn({})\"", params_strs.join(", "));
+        let label = format!("Fn({})", params_strs.join(", "));
 
         self.node_descrs
-            .push(format!("{} [label={}]", node_name, label));
+            .push(format!("{} [label=\"{}\"]", node_name, label));
         self.edge_descrs
-            .push(format!("{} -> {} [label=Fn]", call_node_name, node_name));
+            .push(format!("{} -> {} [label=\"Fn\"]", call_node_name, node_name));
 
         for (iparam, param) in params.iter().enumerate() {
             let param_node_name = self.visit(param.clone());
-            self.edge_descrs
-                .push(format!("{} -> {} [label=arg{}]", param_node_name, node_name, iparam));
+            self.edge_descrs.push(format!("{} -> {} [label=\"arg{}\"]",
+                                          param_node_name, node_name, iparam));
         }
         node_name.to_string()
     }
@@ -112,18 +150,18 @@ impl FoldMapper for Graphvizifier {
                                                .enumerate()
                                                .map(|(i, _)| format!("i{}", i))
                                                .collect();
-        let label = format!("\"A[{}]\"", indices_strs.join(", "));
+        let label = format!("A[{}]", indices_strs.join(", "));
 
         self.node_descrs
-            .push(format!("{} [label={}]", node_name, label));
+            .push(format!("{} [label=\"{}\"]", node_name, label));
         let agg_node_name = self.visit(agg.clone());
         self.edge_descrs
-            .push(format!("{} -> {} [label=A]", agg_node_name, node_name));
+            .push(format!("{} -> {} [label=\"A\"]", agg_node_name, node_name));
 
         for (i_idx, idx) in indices.iter().enumerate() {
             let idx_node_name = self.visit(idx.clone());
             self.edge_descrs
-                .push(format!("{} -> {} [label=i{}]", idx_node_name, node_name, i_idx));
+                .push(format!("{} -> {} [label=\"i{}\"]", idx_node_name, node_name, i_idx));
         }
 
         node_name.to_string()
