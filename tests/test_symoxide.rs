@@ -89,3 +89,11 @@ fn test_get_hasher() {
     }
     assert_eq!(expr.clone(), expr.clone());
 }
+
+#[test]
+fn test_deduplicator() {
+    let expr = parse("42*foo[42*bar*foo, quux+bar, 42+baz]");
+    let deduped_expr = sym::deduplicate_nodes(&expr);
+    assert_eq!(sym::get_num_nodes(&expr), 15);
+    assert_eq!(sym::get_num_nodes(&deduped_expr), 11);
+}
