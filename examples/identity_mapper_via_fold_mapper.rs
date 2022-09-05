@@ -1,5 +1,5 @@
 use std::rc::Rc;
-use symoxide::mappers::fold::FoldMapper;
+use symoxide::mappers::fold::UncachedFoldMapper as FoldMapper;
 use symoxide::{add, variables};
 use symoxide::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 
