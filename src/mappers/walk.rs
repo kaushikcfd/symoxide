@@ -133,59 +133,6 @@ pub trait WalkMapperWithContext {
 
 // }}}
 
-// {{{ MutWalkMapper
-
-pub trait MutWalkMapper {
-    fn should_walk(&mut self, _expr: &Expression) -> bool {
-        true
-    }
-
-    fn post_walk(&mut self, _expr: &Expression) {}
-
-    fn visit(&mut self, expr: &Expression) {
-        if self.should_walk(expr) {
-            match expr {
-                Expression::Scalar(s) => self.map_scalar(&s),
-                Expression::Variable(name) => self.map_variable(name.to_string()),
-                Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), &x),
-                Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
-                Expression::Call(call, params) => self.map_call(&call, &params),
-                Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
-            };
-            self.post_walk(expr);
-        }
-    }
-
-    fn map_scalar(&mut self, _value: &ScalarT) {}
-
-    fn map_variable(&mut self, _name: String) {}
-
-    fn map_unary_op(&mut self, _op: UnaryOpType, x: &Expression) {
-        self.visit(x);
-    }
-
-    fn map_binary_op(&mut self, left: &Expression, _op: BinaryOpType, right: &Expression) {
-        self.visit(left);
-        self.visit(right);
-    }
-
-    fn map_call(&mut self, call: &Expression, params: &Vec<Rc<Expression>>) {
-        self.visit(call);
-        for param in params {
-            self.visit(param);
-        }
-    }
-
-    fn map_subscript(&mut self, agg: &Expression, indices: &Vec<Rc<Expression>>) {
-        self.visit(agg);
-        for idx in indices {
-            self.visit(idx);
-        }
-    }
-}
-
-// }}}
-
 // {{{ WalkMapper
 
 pub trait WalkMapper: CachedMapper<ExpressionRawPointer, bool> {
@@ -251,3 +198,5 @@ pub trait WalkMapper: CachedMapper<ExpressionRawPointer, bool> {
 }
 
 // }}}
+
+// vim: fdm=marker
