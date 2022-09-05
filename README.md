@@ -1,4 +1,4 @@
-## SymOxide: Intermediate Represenation and Transformations for Computer Algebra
+## SymOxide: Intermediate Representation and Transformations for Computer Algebra Systems
 
 SymOxide has taken many design decisions from
 [Pymbolic](https://github.com/inducer/pymbolic) and could be called as
