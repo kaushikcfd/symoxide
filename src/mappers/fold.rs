@@ -68,9 +68,9 @@ pub trait UncachedFoldMapper {
 
 // }}}
 
-// {{{ FoldMapperWithContext
+// {{{ UncachedFoldMapperWithContext
 
-pub trait FoldMapperWithContext {
+pub trait UncachedFoldMapperWithContext {
     type Context;
     type Output;
 
@@ -101,36 +101,53 @@ pub trait FoldMapperWithContext {
 
 // }}}
 
-// {{{ MutFoldMapperWithContext
+// {{{ FoldMapperWithContext
 
-pub trait MutFoldMapperWithContext {
+pub trait FoldMapperWithContext: CachedMapper<Self::CacheKey, Self::Output> {
+    type CacheKey;
     type Context;
-    type Output;
+    type Output: Clone;
 
-    fn visit(&mut self, expr: &Expression, context: &Self::Context) -> Self::Output {
-        match expr {
-            Expression::Scalar(s) => self.map_scalar(&s, context),
-            Expression::Variable(name) => self.map_variable(name.to_string(), context),
-            Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), &x, context),
-            Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
-            Expression::Call(call, params) => self.map_call(&call, &params, context),
-            Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices, context),
+    fn get_cache_key(&self, expr: &Rc<Expression>, context: &Self::Context) -> Self::CacheKey;
+
+    fn visit(&mut self, expr: Rc<Expression>, context: &Self::Context) -> Self::Output {
+        let cache_key = self.get_cache_key(&expr, context);
+        match self.query_cache(&cache_key) {
+            Some(x) => x.clone(),
+            None => {
+                let result = match &*expr {
+                    Expression::Scalar(s) => self.map_scalar(&s, context),
+                    Expression::Variable(name) => self.map_variable(name.to_string(), context),
+                    Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), &x, context),
+                    Expression::BinaryOp(l, op, r) => {
+                        self.map_binary_op(&l, op.clone(), &r, context)
+                    }
+                    Expression::Call(call, params) => self.map_call(&call, &params, context),
+                    Expression::Subscript(agg, indices) => {
+                        self.map_subscript(&agg, &indices, context)
+                    }
+                };
+                self.add_to_cache(cache_key, result.clone());
+                result
+            }
         }
     }
 
     fn map_scalar(&mut self, value: &ScalarT, context: &Self::Context) -> Self::Output;
     fn map_variable(&mut self, name: String, context: &Self::Context) -> Self::Output;
-    fn map_unary_op(&mut self, op: UnaryOpType, x: &Expression, context: &Self::Context)
+    fn map_unary_op(&mut self, op: UnaryOpType, x: &Rc<Expression>, context: &Self::Context)
                     -> Self::Output;
-    fn map_binary_op(&mut self, left: &Expression, op: BinaryOpType, right: &Expression,
+    fn map_binary_op(&mut self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>,
                      context: &Self::Context)
                      -> Self::Output;
-    fn map_call(&mut self, call: &Expression, params: &Vec<Rc<Expression>>,
+    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>,
                 context: &Self::Context)
                 -> Self::Output;
-    fn map_subscript(&mut self, agg: &Expression, indices: &Vec<Rc<Expression>>,
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>,
                      context: &Self::Context)
                      -> Self::Output;
 }
 
 // }}}
+
+// vim: fdm=marker
