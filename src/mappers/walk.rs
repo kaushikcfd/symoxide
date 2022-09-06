@@ -168,9 +168,7 @@ pub trait WalkMapper: CachedMapper<ExpressionRawPointer, bool> {
                         Expression::Scalar(s) => self.map_scalar(&s),
                         Expression::Variable(name) => self.map_variable(name.to_string()),
                         Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), x),
-                        Expression::BinaryOp(l, op, r) => {
-                            self.map_binary_op(l, op.clone(), r)
-                        }
+                        Expression::BinaryOp(l, op, r) => self.map_binary_op(l, op.clone(), r),
                         Expression::Call(call, params) => self.map_call(call, &params),
                         Expression::Subscript(agg, indices) => self.map_subscript(agg, &indices),
                         Expression::If(cond, then, else_) => self.map_if(cond, then, else_),

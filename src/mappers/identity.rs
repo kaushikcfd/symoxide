@@ -77,8 +77,10 @@ pub trait IdentityMapper: CachedMapper<ExpressionRawPointer, Rc<Expression>> {
     }
 
     fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
-        -> Rc<Expression> {
-        Rc::new(Expression::If(self.visit(cond.clone()), self.visit(then.clone()), self.visit(else_.clone())))
+              -> Rc<Expression> {
+        Rc::new(Expression::If(self.visit(cond.clone()),
+                               self.visit(then.clone()),
+                               self.visit(else_.clone())))
     }
 }
 
@@ -126,7 +128,8 @@ pub trait UncachedIdentityMapper {
                                       indices.iter().map(|idx| self.visit(idx)).collect()))
     }
 
-    fn map_if(&self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>) -> Rc<Expression> {
+    fn map_if(&self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
+              -> Rc<Expression> {
         Rc::new(Expression::If(self.visit(cond), self.visit(then), self.visit(else_)))
     }
 }
@@ -186,8 +189,11 @@ pub trait IdentityMapperWithContext {
     }
 
     fn map_if(&self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>,
-              context: &Self::Context) -> Rc<Expression> {
-        Rc::new(Expression::If(self.visit(cond, context), self.visit(then, context), self.visit(else_, context)))
+              context: &Self::Context)
+              -> Rc<Expression> {
+        Rc::new(Expression::If(self.visit(cond, context),
+                               self.visit(then, context),
+                               self.visit(else_, context)))
     }
 }
 
@@ -251,8 +257,10 @@ pub trait IdentityMapperWithCustomCacheKey: CachedMapper<Self::CacheKey, Rc<Expr
     }
 
     fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
-                     -> Rc<Expression> {
-        Rc::new(Expression::If(self.visit(cond.clone()), self.visit(then.clone()), self.visit(else_.clone())))
+              -> Rc<Expression> {
+        Rc::new(Expression::If(self.visit(cond.clone()),
+                               self.visit(then.clone()),
+                               self.visit(else_.clone())))
     }
 }
 

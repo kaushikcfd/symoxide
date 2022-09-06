@@ -83,9 +83,7 @@ impl FoldMapperWithContext for Reprifier {
                 };
             }
 
-            format!("Call({}, [{}]))",
-                    self.visit(call, &new_level),
-                    param_str)
+            format!("Call({}, [{}]))", self.visit(call, &new_level), param_str)
         } else {
             format!("(...)")
         }
@@ -113,8 +111,8 @@ impl FoldMapperWithContext for Reprifier {
         }
     }
     fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>,
-                     level: &Self::Context)
-                     -> Self::Output {
+              level: &Self::Context)
+              -> Self::Output {
         if *level < self.truncation_level {
             let new_level: u32 = level + 1;
             format!("If({}, {}, {}))",

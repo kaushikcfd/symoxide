@@ -64,8 +64,7 @@ pub trait UnachedCombineMapper: Sized {
         self.combine(&[self.visit(agg), self.combine(&rec_indices)])
     }
 
-    fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression)
-                     -> Self::Output {
+    fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression) -> Self::Output {
         self.combine(&[self.visit(cond), self.visit(then), self.visit(else_)])
     }
 }
@@ -121,8 +120,11 @@ pub trait CombineMapperWithContext: Sized {
     }
 
     fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression,
-              context: &Self::Context) -> Self::Output {
-        self.combine(&[self.visit(cond, context), self.visit(then, context), self.visit(else_, context)])
+              context: &Self::Context)
+              -> Self::Output {
+        self.combine(&[self.visit(cond, context),
+                       self.visit(then, context),
+                       self.visit(else_, context)])
     }
 }
 
@@ -181,14 +183,13 @@ pub trait CombineMapper: Sized + CachedMapper<ExpressionRawPointer, Self::Output
     fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
                      -> Self::Output {
         let agg_rec = self.visit(agg);
-        let rec_indices: Vec<Self::Output> =
-            indices.iter().map(|x| self.visit(x)).collect();
+        let rec_indices: Vec<Self::Output> = indices.iter().map(|x| self.visit(x)).collect();
         let combined_params = self.combine(&rec_indices);
         self.combine(&[agg_rec, combined_params])
     }
 
     fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
-                     -> Self::Output {
+              -> Self::Output {
         let cond_rec = self.visit(cond);
         let then_rec = self.visit(then);
         let else_rec = self.visit(else_);

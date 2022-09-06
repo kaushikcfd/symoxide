@@ -89,7 +89,7 @@ impl FoldMapper for HashCacher {
         hasher.finish()
     }
     fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
-        -> Self::Output {
+              -> Self::Output {
         let mut hasher = DefaultHasher::new();
         let cond_hash = self.visit(cond);
         let then_hash = self.visit(then);

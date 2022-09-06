@@ -167,7 +167,7 @@ impl FoldMapper for Graphvizifier {
         node_name.to_string()
     }
     fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
-                     -> Self::Output {
+              -> Self::Output {
         let node_name = self.vng.get("expr");
         let cond_node_name = self.visit(cond);
         let then_node_name = self.visit(then);

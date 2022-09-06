@@ -42,8 +42,7 @@ impl FoldMapper for Renamer {
         return Rc::new(Expression::Subscript(self.visit(agg), rec_indices));
     }
 
-    fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression)
-              -> Rc<Expression> {
+    fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression) -> Rc<Expression> {
         let rec_cond = self.visit(cond);
         let rec_then = self.visit(then);
         let rec_else = self.visit(else_);

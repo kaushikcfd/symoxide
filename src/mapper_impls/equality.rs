@@ -44,14 +44,16 @@ impl EqualityMapper {
                         Expression::UnaryOp(op, x) => self.map_unary_op(*op, x.clone(), expr2),
                         Expression::BinaryOp(l, op, r) => {
                             self.map_binary_op(l.clone(), *op, r.clone(), expr2)
-                        },
+                        }
                         Expression::Call(call, params) => {
                             self.map_call(call.clone(), &params, expr2)
-                        },
+                        }
                         Expression::Subscript(agg, indices) => {
                             self.map_subscript(agg.clone(), &indices, expr2)
-                        },
-                        Expression::If(cond, then, else_) => self.map_if(cond.clone(), then.clone(), else_.clone(), expr2),
+                        }
+                        Expression::If(cond, then, else_) => {
+                            self.map_if(cond.clone(), then.clone(), else_.clone(), expr2)
+                        }
                     }
                 };
                 self.cache.insert(cache_key, result);
@@ -127,7 +129,8 @@ impl EqualityMapper {
     }
 
     fn map_if(&mut self, cond: Rc<Expression>, then: Rc<Expression>, else_: Rc<Expression>,
-              expr2: Rc<Expression>) -> bool {
+              expr2: Rc<Expression>)
+              -> bool {
         match &*expr2 {
             Expression::If(cond2, then2, else2) => {
                 self.visit(cond.clone(), cond2.clone())
