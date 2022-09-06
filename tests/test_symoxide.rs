@@ -45,6 +45,18 @@ fn test_parser() {
     let (foo, bar, baz) = sym::variables!("foo bar baz");
     assert_eq!(parse("foo[2, bar, baz]"),
                ops::index(foo, vec![scalar!(2), bar, baz]));
+
+    let i = sym::var("i");
+    assert_eq!(parse("5+i if i>=0 else (0 if i<-1 else 10)"),
+               ops::ifthenelse(ops::greater_equal(&i, &sym::scalar!(0)),
+                               ops::add(&sym::scalar!(5), &i),
+                               ops::ifthenelse(ops::less(&i, &sym::scalar!(-1)),
+                                               sym::scalar!(0),
+                                               sym::scalar!(10))));
+    assert_eq!(parse("0 if (1 if 2 else 3) else 4"),
+               ops::ifthenelse(ops::ifthenelse(sym::scalar!(2), sym::scalar!(1), sym::scalar!(3)),
+                               sym::scalar!(0),
+                               sym::scalar!(4)));
 }
 
 #[test]
