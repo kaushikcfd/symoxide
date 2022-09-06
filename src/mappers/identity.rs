@@ -38,6 +38,7 @@ pub trait IdentityMapper: CachedMapper<ExpressionRawPointer, Rc<Expression>> {
                     Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
                     Expression::Call(call, params) => self.map_call(&call, &params),
                     Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
+                    Expression::If(cond, then, else_) => self.map_if(&cond, &then, &else_),
                 };
                 self.add_to_cache(cache_key, result.clone());
                 result
@@ -74,6 +75,11 @@ pub trait IdentityMapper: CachedMapper<ExpressionRawPointer, Rc<Expression>> {
         Rc::new(Expression::Subscript(self.visit(agg.clone()),
                                       indices.iter().map(|idx| self.visit(idx.clone())).collect()))
     }
+
+    fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
+        -> Rc<Expression> {
+        Rc::new(Expression::If(self.visit(cond.clone()), self.visit(then.clone()), self.visit(else_.clone())))
+    }
 }
 
 // }}}
@@ -89,6 +95,7 @@ pub trait UncachedIdentityMapper {
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
             Expression::Call(call, params) => self.map_call(&call, &params),
             Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
+            Expression::If(cond, then, else_) => self.map_if(&cond, &then, &else_),
         }
     }
 
@@ -118,6 +125,10 @@ pub trait UncachedIdentityMapper {
         Rc::new(Expression::Subscript(self.visit(agg),
                                       indices.iter().map(|idx| self.visit(idx)).collect()))
     }
+
+    fn map_if(&self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>) -> Rc<Expression> {
+        Rc::new(Expression::If(self.visit(cond), self.visit(then), self.visit(else_)))
+    }
 }
 
 // }}}
@@ -135,6 +146,7 @@ pub trait IdentityMapperWithContext {
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
             Expression::Call(call, params) => self.map_call(&call, &params, context),
             Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices, context),
+            Expression::If(cond, then, else_) => self.map_if(&cond, &then, &else_, context),
         }
     }
 
@@ -172,6 +184,11 @@ pub trait IdentityMapperWithContext {
         Rc::new(Expression::Subscript(self.visit(agg, context),
                                       indices.iter().map(|idx| self.visit(idx, context)).collect()))
     }
+
+    fn map_if(&self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>,
+              context: &Self::Context) -> Rc<Expression> {
+        Rc::new(Expression::If(self.visit(cond, context), self.visit(then, context), self.visit(else_, context)))
+    }
 }
 
 // }}}
@@ -195,6 +212,7 @@ pub trait IdentityMapperWithCustomCacheKey: CachedMapper<Self::CacheKey, Rc<Expr
                     Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
                     Expression::Call(call, params) => self.map_call(&call, &params),
                     Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
+                    Expression::If(cond, then, else_) => self.map_if(&cond, &then, &else_),
                 };
                 self.add_to_cache(cache_key, result.clone());
                 result
@@ -230,6 +248,11 @@ pub trait IdentityMapperWithCustomCacheKey: CachedMapper<Self::CacheKey, Rc<Expr
                      -> Rc<Expression> {
         Rc::new(Expression::Subscript(self.visit(agg.clone()),
                                       indices.iter().map(|idx| self.visit(idx.clone())).collect()))
+    }
+
+    fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
+                     -> Rc<Expression> {
+        Rc::new(Expression::If(self.visit(cond.clone()), self.visit(then.clone()), self.visit(else_.clone())))
     }
 }
 

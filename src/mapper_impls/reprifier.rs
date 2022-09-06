@@ -50,7 +50,7 @@ impl FoldMapperWithContext for Reprifier {
                     -> Self::Output {
         if *level < self.truncation_level {
             let new_level: u32 = level + 1;
-            format!("UnaryOp({}, {}))", op, self.visit(x.clone(), &new_level))
+            format!("UnaryOp({}, {}))", op, self.visit(x, &new_level))
         } else {
             format!("(...)")
         }
@@ -61,9 +61,9 @@ impl FoldMapperWithContext for Reprifier {
         if *level < self.truncation_level {
             let new_level: u32 = level + 1;
             format!("BinaryOp({}, {}, {}))",
-                    self.visit(left.clone(), &new_level),
+                    self.visit(left, &new_level),
                     op,
-                    self.visit(right.clone(), &new_level))
+                    self.visit(right, &new_level))
         } else {
             format!("(...)")
         }
@@ -79,12 +79,12 @@ impl FoldMapperWithContext for Reprifier {
                 param_str = if iparam == 0 {
                     format!("{}", param)
                 } else {
-                    format!("{}, {}", param_str, self.visit(param.clone(), &new_level))
+                    format!("{}, {}", param_str, self.visit(param, &new_level))
                 };
             }
 
             format!("Call({}, [{}]))",
-                    self.visit(call.clone(), &new_level),
+                    self.visit(call, &new_level),
                     param_str)
         } else {
             format!("(...)")
@@ -101,13 +101,26 @@ impl FoldMapperWithContext for Reprifier {
                 indices_str = if i_idx == 0 {
                     format!("{}", idx)
                 } else {
-                    format!("{}, {}", indices_str, self.visit(idx.clone(), &new_level))
+                    format!("{}, {}", indices_str, self.visit(idx, &new_level))
                 };
             }
 
             format!("Subscript({}, [{}]))",
-                    self.visit(agg.clone(), &new_level),
+                    self.visit(agg, &new_level),
                     indices_str)
+        } else {
+            format!("(...)")
+        }
+    }
+    fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>,
+                     level: &Self::Context)
+                     -> Self::Output {
+        if *level < self.truncation_level {
+            let new_level: u32 = level + 1;
+            format!("If({}, {}, {}))",
+                    self.visit(cond, &new_level),
+                    self.visit(then, &new_level),
+                    self.visit(else_, &new_level))
         } else {
             format!("(...)")
         }
@@ -119,6 +132,6 @@ impl fmt::Debug for Expression {
         let mut mapper = Reprifier { truncation_level: 3,
                                      cache: HashMap::new() };
         let start_level = 0;
-        write!(f, "{}", mapper.visit(Rc::new(self.clone()), &start_level))
+        write!(f, "{}", mapper.visit(&Rc::new(self.clone()), &start_level))
     }
 }

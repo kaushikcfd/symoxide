@@ -98,9 +98,9 @@ impl FoldMapper for Graphvizifier {
             .push(format!("{} [label=\"{}\"]", node_name, name));
         node_name.to_string()
     }
-    fn map_unary_op(&mut self, op: UnaryOpType, x: Rc<Expression>) -> Self::Output {
+    fn map_unary_op(&mut self, op: UnaryOpType, x: &Rc<Expression>) -> Self::Output {
         let node_name = self.vng.get("expr");
-        let x_name = self.visit(x.clone());
+        let x_name = self.visit(x);
 
         self.node_descrs
             .push(format!("{} [label=\"{}\"]", node_name, pprint_uop(&op)));
@@ -108,11 +108,11 @@ impl FoldMapper for Graphvizifier {
             .push(format!("{} -> {}", x_name, node_name));
         node_name.to_string()
     }
-    fn map_binary_op(&mut self, left: Rc<Expression>, op: BinaryOpType, right: Rc<Expression>)
+    fn map_binary_op(&mut self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>)
                      -> Self::Output {
         let node_name = self.vng.get("expr");
-        let left_node_name = self.visit(left.clone());
-        let right_node_name = self.visit(right.clone());
+        let left_node_name = self.visit(left);
+        let right_node_name = self.visit(right);
 
         self.node_descrs
             .push(format!("{} [label=\"{}\"]", node_name, pprint_binop(&op)));
@@ -122,9 +122,9 @@ impl FoldMapper for Graphvizifier {
             .push(format!("{} -> {}", right_node_name, node_name));
         node_name.to_string()
     }
-    fn map_call(&mut self, call: Rc<Expression>, params: &Vec<Rc<Expression>>) -> Self::Output {
+    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Self::Output {
         let node_name = self.vng.get("expr");
-        let call_node_name = self.visit(call.clone());
+        let call_node_name = self.visit(call);
         let params_strs: Vec<String> = params.iter()
                                              .enumerate()
                                              .map(|(i, _)| format!("arg{}", i))
@@ -137,13 +137,13 @@ impl FoldMapper for Graphvizifier {
             .push(format!("{} -> {} [label=\"Fn\"]", call_node_name, node_name));
 
         for (iparam, param) in params.iter().enumerate() {
-            let param_node_name = self.visit(param.clone());
+            let param_node_name = self.visit(param);
             self.edge_descrs.push(format!("{} -> {} [label=\"arg{}\"]",
                                           param_node_name, node_name, iparam));
         }
         node_name.to_string()
     }
-    fn map_subscript(&mut self, agg: Rc<Expression>, indices: &Vec<Rc<Expression>>)
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
                      -> Self::Output {
         let node_name = self.vng.get("expr");
         let indices_strs: Vec<String> = indices.iter()
@@ -154,16 +154,33 @@ impl FoldMapper for Graphvizifier {
 
         self.node_descrs
             .push(format!("{} [label=\"{}\"]", node_name, label));
-        let agg_node_name = self.visit(agg.clone());
+        let agg_node_name = self.visit(agg);
         self.edge_descrs
             .push(format!("{} -> {} [label=\"A\"]", agg_node_name, node_name));
 
         for (i_idx, idx) in indices.iter().enumerate() {
-            let idx_node_name = self.visit(idx.clone());
+            let idx_node_name = self.visit(idx);
             self.edge_descrs
                 .push(format!("{} -> {} [label=\"i{}\"]", idx_node_name, node_name, i_idx));
         }
 
+        node_name.to_string()
+    }
+    fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
+                     -> Self::Output {
+        let node_name = self.vng.get("expr");
+        let cond_node_name = self.visit(cond);
+        let then_node_name = self.visit(then);
+        let else_node_name = self.visit(else_);
+
+        self.node_descrs
+            .push(format!("{} [label=\"X if Y else Z\"]", node_name));
+        self.edge_descrs
+            .push(format!("{} -> {}", cond_node_name, node_name));
+        self.edge_descrs
+            .push(format!("{} -> {}", then_node_name, node_name));
+        self.edge_descrs
+            .push(format!("{} -> {}", else_node_name, node_name));
         node_name.to_string()
     }
 }
@@ -173,7 +190,7 @@ pub fn show_dot<T: ConvertibleToDotOutputT>(expr: &Expression, output_to: T) {
                                      node_descrs: vec![],
                                      edge_descrs: vec![],
                                      cache: HashMap::new() };
-    mapper.visit(Rc::new(expr.clone()));
+    mapper.visit(&Rc::new(expr.clone()));
 
     let nodes_str = mapper.node_descrs
                           .iter()

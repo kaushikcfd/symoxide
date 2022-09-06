@@ -49,6 +49,6 @@ impl WalkMapper for NodeCounter {
 pub fn get_num_nodes(expr: &Expression) -> u32 {
     let mut node_counter = NodeCounter { num_nodes: 0,
                                          cache: HashMap::new() };
-    node_counter.visit(Rc::new(expr.clone()));
+    node_counter.visit(&Rc::new(expr.clone()));
     node_counter.num_nodes
 }

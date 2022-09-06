@@ -118,6 +118,7 @@ impl fmt::Display for Expression {
 
                 write!(f, "Subscript({},[{}])", aggregate, idx_str)
             }
+            Expression::If(cond, then, else_) => write!(f, "If({}, {}, {})", cond, then, else_),
         }
     }
 }

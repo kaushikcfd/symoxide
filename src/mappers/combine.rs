@@ -38,6 +38,7 @@ pub trait UnachedCombineMapper: Sized {
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r),
             Expression::Call(call, params) => self.map_call(&call, &params),
             Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices),
+            Expression::If(cond, then, else_) => self.map_if(&cond, &then, &else_),
         }
     }
 
@@ -62,6 +63,11 @@ pub trait UnachedCombineMapper: Sized {
         let rec_indices: Vec<Self::Output> = indices.iter().map(|x| self.visit(x)).collect();
         self.combine(&[self.visit(agg), self.combine(&rec_indices)])
     }
+
+    fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression)
+                     -> Self::Output {
+        self.combine(&[self.visit(cond), self.visit(then), self.visit(else_)])
+    }
 }
 
 // }}}
@@ -82,6 +88,7 @@ pub trait CombineMapperWithContext: Sized {
             Expression::BinaryOp(l, op, r) => self.map_binary_op(&l, op.clone(), &r, context),
             Expression::Call(call, params) => self.map_call(&call, &params, context),
             Expression::Subscript(agg, indices) => self.map_subscript(&agg, &indices, context),
+            Expression::If(cond, then, else_) => self.map_if(&cond, &then, &else_, context),
         }
     }
 
@@ -112,6 +119,11 @@ pub trait CombineMapperWithContext: Sized {
             indices.iter().map(|x| self.visit(x, context)).collect();
         self.combine(&[self.visit(agg, context), self.combine(&rec_indices)])
     }
+
+    fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression,
+              context: &Self::Context) -> Self::Output {
+        self.combine(&[self.visit(cond, context), self.visit(then, context), self.visit(else_, context)])
+    }
 }
 
 // }}}
@@ -123,7 +135,7 @@ pub trait CombineMapper: Sized + CachedMapper<ExpressionRawPointer, Self::Output
 
     fn combine(&mut self, values: &[Self::Output]) -> Self::Output;
 
-    fn visit(&mut self, expr: Rc<Expression>) -> Self::Output {
+    fn visit(&mut self, expr: &Rc<Expression>) -> Self::Output {
         let cache_key = ExpressionRawPointer(expr.clone());
 
         match self.query_cache(&cache_key) {
@@ -132,14 +144,11 @@ pub trait CombineMapper: Sized + CachedMapper<ExpressionRawPointer, Self::Output
                 let result = match &*expr.clone() {
                     Expression::Scalar(s) => self.map_scalar(&s),
                     Expression::Variable(name) => self.map_variable(name.to_string()),
-                    Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), x.clone()),
-                    Expression::BinaryOp(l, op, r) => {
-                        self.map_binary_op(l.clone(), op.clone(), r.clone())
-                    }
-                    Expression::Call(call, params) => self.map_call(call.clone(), &params),
-                    Expression::Subscript(agg, indices) => {
-                        self.map_subscript(agg.clone(), &indices)
-                    }
+                    Expression::UnaryOp(op, x) => self.map_unary_op(op.clone(), x),
+                    Expression::BinaryOp(l, op, r) => self.map_binary_op(l, op.clone(), r),
+                    Expression::Call(call, params) => self.map_call(call, &params),
+                    Expression::Subscript(agg, indices) => self.map_subscript(agg, &indices),
+                    Expression::If(cond, then, else_) => self.map_if(cond, then, else_),
                 };
 
                 self.add_to_cache(cache_key, result.clone());
@@ -151,31 +160,39 @@ pub trait CombineMapper: Sized + CachedMapper<ExpressionRawPointer, Self::Output
     fn map_scalar(&mut self, value: &ScalarT) -> Self::Output;
     fn map_variable(&mut self, name: String) -> Self::Output;
 
-    fn map_unary_op(&mut self, _op: UnaryOpType, x: Rc<Expression>) -> Self::Output {
-        self.visit(x.clone())
+    fn map_unary_op(&mut self, _op: UnaryOpType, x: &Rc<Expression>) -> Self::Output {
+        self.visit(x)
     }
 
-    fn map_binary_op(&mut self, left: Rc<Expression>, _op: BinaryOpType, right: Rc<Expression>)
+    fn map_binary_op(&mut self, left: &Rc<Expression>, _op: BinaryOpType, right: &Rc<Expression>)
                      -> Self::Output {
-        let l_rec = self.visit(left.clone());
-        let r_rec = self.visit(right.clone());
+        let l_rec = self.visit(left);
+        let r_rec = self.visit(right);
         self.combine(&[l_rec, r_rec])
     }
 
-    fn map_call(&mut self, call: Rc<Expression>, params: &Vec<Rc<Expression>>) -> Self::Output {
-        let call_rec = self.visit(call.clone());
-        let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x.clone())).collect();
+    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Self::Output {
+        let call_rec = self.visit(call);
+        let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x)).collect();
         let combined_params = self.combine(&rec_params);
         self.combine(&[call_rec, combined_params])
     }
 
-    fn map_subscript(&mut self, agg: Rc<Expression>, indices: &Vec<Rc<Expression>>)
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
                      -> Self::Output {
-        let agg_rec = self.visit(agg.clone());
+        let agg_rec = self.visit(agg);
         let rec_indices: Vec<Self::Output> =
-            indices.iter().map(|x| self.visit(x.clone())).collect();
+            indices.iter().map(|x| self.visit(x)).collect();
         let combined_params = self.combine(&rec_indices);
         self.combine(&[agg_rec, combined_params])
+    }
+
+    fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
+                     -> Self::Output {
+        let cond_rec = self.visit(cond);
+        let then_rec = self.visit(then);
+        let else_rec = self.visit(else_);
+        self.combine(&[cond_rec, then_rec, else_rec])
     }
 }
 

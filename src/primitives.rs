@@ -44,6 +44,7 @@ pub enum Expression {
     BinaryOp(Rc<Expression>, BinaryOpType, Rc<Expression>),
     Call(Rc<Expression>, Vec<Rc<Expression>>),
     Subscript(Rc<Expression>, Vec<Rc<Expression>>),
+    If(Rc<Expression>, Rc<Expression>, Rc<Expression>),
 }
 
 #[derive(Copy, Clone, PartialEq, Eq)]

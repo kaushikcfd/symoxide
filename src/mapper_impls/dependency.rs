@@ -43,7 +43,7 @@ impl CombineMapper for DependenciesGetter {
 
 pub fn get_dependencies(expr: &Expression) -> HashSet<String> {
     let mut mapper = DependenciesGetter { cache: HashMap::new() };
-    let rc_deps = mapper.visit(Rc::new(expr.clone()));
+    let rc_deps = mapper.visit(&Rc::new(expr.clone()));
     let mut result: HashSet<String> = HashSet::new();
     for k in rc_deps.iter() {
         result.insert(k.clone());
