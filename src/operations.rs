@@ -67,4 +67,9 @@ pub fn index<T: IntoIterator<Item = Rc<Expression>>>(agg: Rc<Expression>, indice
     Rc::new(Expression::Subscript(agg.clone(), vec_indices))
 }
 
+pub fn ifthenelse(cond: Rc<Expression>, then: Rc<Expression>, else_: Rc<Expression>)
+                  -> Rc<Expression> {
+    Rc::new(Expression::If(cond.clone(), then.clone(), else_.clone()))
+}
+
 // vim : fdm=marker
