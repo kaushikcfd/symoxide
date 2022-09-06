@@ -1,8 +1,39 @@
+use std::collections::HashMap;
+use std::rc::Rc;
+use sym::ExpressionRawPointer;
+use symoxide as sym;
+use symoxide::mappers::identity::IdentityMapper;
+
+struct Renamer {
+    cache: HashMap<ExpressionRawPointer, Rc<sym::Expression>>,
+}
+
+impl sym::CachedMapper<ExpressionRawPointer, Rc<sym::Expression>> for Renamer {
+    fn query_cache(&self, key: &ExpressionRawPointer) -> Option<&Rc<sym::Expression>> {
+        self.cache.get(key)
+    }
+    fn add_to_cache(&mut self, key: ExpressionRawPointer, val: Rc<sym::Expression>) {
+        self.cache.insert(key, val);
+    }
+}
+
+impl sym::mappers::identity::IdentityMapper for Renamer {
+    fn map_variable(&mut self, name: String) -> Rc<sym::Expression> {
+        let new_name = match &name[..] {
+            "iface_ensm15" => "_0",
+            "iel_ensm15" => "_1",
+            "idof_ensm15" => "_2",
+            _ => name.as_str(),
+        };
+        sym::var(new_name)
+    }
+}
+
 fn main() {
     // substitute iface_ensm15 => _0
     // substitute iel_ensm15   => _1
     // substitute idof_ensm15  => _2
-    let expr = concat!("(-1)*((cse_577[_pt_data_48[((iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 4302160) // 10, 0],",
+    let code = concat!("(-1)*((cse_577[_pt_data_48[((iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 4302160) // 10, 0],",
                        "_pt_data_49[(iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 10]]",
                        " if _pt_data_48[((iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 4302160) // 10, 0] != -1 else 0)",
                        " + (cse_577[_pt_data_46[((iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 4302160) // 10, 0],",
@@ -78,7 +109,14 @@ fn main() {
                        " if _pt_data_90[((iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 4302160) // 10, 0] != -1 else 0)",
                        " + (cse_575[_pt_data_103[((iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 4302160) // 10, 0], _pt_data_104[(iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 10]]",
                        " if _pt_data_103[((iface_ensm15*1075540 + iel_ensm15*10 + idof_ensm15) % 4302160) // 10, 0] != -1 else 0)");
-    // Parse this expression.
-    // Still need to parse "if".
-    println!("{}", expr);
+
+    let expr = sym::parse(code);
+    let expr = sym::deduplicate_nodes(&expr);
+
+    let t_start = std::time::Instant::now();
+    for _ in 0..10_000 {
+        let mut renamer = Renamer { cache: HashMap::new() };
+        let _new_expr = renamer.visit(expr.clone());
+    }
+    println!("Took: {:?} secs", t_start.elapsed());
 }

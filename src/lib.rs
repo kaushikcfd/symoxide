@@ -36,6 +36,8 @@ pub use mapper_impls::equality::are_structurally_equal;
 pub use mapper_impls::graphvizifier::show_dot;
 pub use mapper_impls::hasher::get_hasher;
 pub use mapper_impls::node_counter::get_num_nodes;
+pub use mappers::CachedMapper;
 pub use operations::{add, div, mul};
 pub use parse::parse_expr as parse;
 pub use primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+pub use utils::ExpressionRawPointer;
