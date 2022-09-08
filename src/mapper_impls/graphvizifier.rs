@@ -22,27 +22,19 @@ use crate::mappers::fold::FoldMapper;
 use crate::mappers::CachedMapper;
 use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
+use crate::CachedMapper;
 use pytools_rs::{
     make_unique_name_gen, show_dot as show_dot_code, ConvertibleToDotOutputT, UniqueNameGenerator,
 };
 use std::collections::HashMap;
 use std::rc::Rc;
 
+#[derive(CachedMapper)]
 struct Graphvizifier {
     vng: UniqueNameGenerator,
     node_descrs: Vec<String>,
     edge_descrs: Vec<String>,
     cache: HashMap<ExpressionRawPointer, String>,
-}
-
-impl CachedMapper<ExpressionRawPointer, String> for Graphvizifier {
-    fn query_cache(&self, key: &ExpressionRawPointer) -> Option<&String> {
-        self.cache.get(key)
-    }
-
-    fn add_to_cache(&mut self, key: ExpressionRawPointer, value: String) {
-        self.cache.insert(key, value);
-    }
 }
 
 fn pprint_binop(op: &BinaryOpType) -> &str {

@@ -1,7 +1,8 @@
 use proc_macro;
 use lazy_static::lazy_static;
 use proc_macro::{TokenStream};
-use syn::{parse, LitStr, LitInt, LitFloat, Result, Expr, parse_str};
+use syn::{parse, LitStr, LitInt, LitFloat, Result, Expr, parse_str,
+          DeriveInput, Data, Fields, Type, PathArguments, parse_macro_input};
 use syn::punctuated::Punctuated;
 use syn::token::Comma;
 use regex::Regex;
@@ -71,6 +72,65 @@ pub fn scalar(token_stream: TokenStream) -> TokenStream {
             }
         }
     }
+}
+
+
+#[proc_macro_derive(CachedMapper)]
+pub fn derive_cached_mapper(input: TokenStream) -> TokenStream {
+    let DeriveInput { ident, data, .. } = parse_macro_input!(input);
+    let struct_ = match data {
+        Data::Struct(x) => x,
+        _ => panic!("expected a struct"),
+    };
+    let struct_fields = match struct_.fields {
+        Fields::Named(x) => x,
+         _ => panic!("derive CachedMapper expects structs with named fields."),
+    };
+
+    let val_field_opt = struct_fields.named
+        .iter()
+        .filter(|x| match &x.ident {
+                Some(x) => x.to_string() =="cache",
+                _ => false
+            }).next();
+    let val_field = match val_field_opt {
+        Some(x) => x,
+        None => panic!("derive CachedMapper requires a 'cache' hashmap field."),
+    };
+    let ty = val_field.clone().ty;
+    let path = match ty {
+        Type::Path(ty_path) => ty_path.path,
+         _ => panic!("derive CachedMapper requires 'cache' hashmap field."),
+    };
+
+    let path_arguments = match path.segments.last() {
+        Some(x) => x.clone().arguments,
+         _ => panic!("derive CachedMapper requires 'cache' hashmap field."),
+    };
+
+     let hashmap_args = match &path_arguments {
+         PathArguments::AngleBracketed(args) => args.clone().args,
+         _ => panic!("derive CachedMapper requires 'cache' hashmap field."),
+     };
+
+    if hashmap_args.len() != 2 {
+        panic!("derive CachedMapper requires 'cache' hashmap field.");
+    }
+
+    let kt = hashmap_args.first().unwrap();
+    let vt = hashmap_args.last().unwrap();
+
+    let output = quote! {
+        impl CachedMapper<#kt, #vt> for #ident {
+            fn query_cache(&self, key: &#kt) -> Option<&#vt> {
+                self.cache.get(key)
+            }
+            fn add_to_cache(&mut self, key: #kt, val: #vt) {
+                self.cache.insert(key, val);
+            }
+        }
+    };
+    output.into()
 }
 
 // vim: fdm=marker

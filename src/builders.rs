@@ -30,6 +30,6 @@ use std::rc::Rc;
 ///
 /// let x = var("x");
 /// ```
-pub fn var(x: &str) -> Rc<Expression> {
+pub fn var<T: ToString>(x: T) -> Rc<Expression> {
     return Rc::new(Expression::Variable(x.to_string()));
 }

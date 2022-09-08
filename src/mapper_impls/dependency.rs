@@ -2,21 +2,14 @@ use crate::mappers::combine::CombineMapper;
 use crate::mappers::CachedMapper;
 use crate::primitives::Expression;
 use crate::utils::ExpressionRawPointer;
+use crate::CachedMapper;
 use crate::ScalarT;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
+#[derive(CachedMapper)]
 struct DependenciesGetter {
     cache: HashMap<ExpressionRawPointer, Rc<HashSet<String>>>,
-}
-
-impl CachedMapper<ExpressionRawPointer, Rc<HashSet<String>>> for DependenciesGetter {
-    fn query_cache(&self, key: &ExpressionRawPointer) -> Option<&Rc<HashSet<String>>> {
-        self.cache.get(&key)
-    }
-    fn add_to_cache(&mut self, key: ExpressionRawPointer, value: Rc<HashSet<String>>) {
-        self.cache.insert(key, value);
-    }
 }
 
 impl CombineMapper for DependenciesGetter {

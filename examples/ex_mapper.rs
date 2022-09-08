@@ -1,11 +1,16 @@
+use std::collections::HashMap;
 use std::rc::Rc;
-use symoxide::mappers::identity::UncachedIdentityMapper as IdentityMapper;
-use symoxide::Expression;
-use symoxide::{add, variables};
+use symoxide::mappers::identity::IdentityMapper;
+use symoxide::mappers::CachedMapper;
+use symoxide::{parse, CachedMapper, Expression, ExpressionRawPointer};
 
-struct Renamer;
+#[derive(CachedMapper)]
+struct Renamer {
+    cache: HashMap<ExpressionRawPointer, Rc<Expression>>,
+}
+
 impl IdentityMapper for Renamer {
-    fn map_variable(&self, name: String) -> Rc<Expression> {
+    fn map_variable(&mut self, name: String) -> Rc<Expression> {
         let new_name = match &name[..] {
             "x" => "foo",
             "y" => "bar",
@@ -16,11 +21,10 @@ impl IdentityMapper for Renamer {
 }
 
 fn main() {
-    let renamer = Renamer {};
-    let (x, y) = variables!("x y");
+    let mut renamer = Renamer { cache: HashMap::new() };
 
-    let xpy = add(&x, &y);
-    let xpy_renamed = renamer.visit(&xpy);
+    let xpy = parse("x+y");
+    let xpy_renamed = renamer.visit(xpy.clone());
     println!("Old expr = {}", xpy);
     println!("New expr = {}", xpy_renamed);
 }

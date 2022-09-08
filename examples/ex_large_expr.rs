@@ -1,29 +1,21 @@
 use std::collections::HashMap;
 use std::rc::Rc;
-use sym::ExpressionRawPointer;
 use symoxide as sym;
 use symoxide::mappers::identity::IdentityMapper;
+use symoxide::mappers::CachedMapper;
 
+#[derive(sym::CachedMapper)]
 struct Renamer {
-    cache: HashMap<ExpressionRawPointer, Rc<sym::Expression>>,
-}
-
-impl sym::CachedMapper<ExpressionRawPointer, Rc<sym::Expression>> for Renamer {
-    fn query_cache(&self, key: &ExpressionRawPointer) -> Option<&Rc<sym::Expression>> {
-        self.cache.get(key)
-    }
-    fn add_to_cache(&mut self, key: ExpressionRawPointer, val: Rc<sym::Expression>) {
-        self.cache.insert(key, val);
-    }
+    cache: HashMap<sym::ExpressionRawPointer, Rc<sym::Expression>>,
 }
 
 impl sym::mappers::identity::IdentityMapper for Renamer {
     fn map_variable(&mut self, name: String) -> Rc<sym::Expression> {
-        let new_name = match &name[..] {
+        let new_name = match name.as_str() {
             "iface_ensm15" => "_0",
             "iel_ensm15" => "_1",
             "idof_ensm15" => "_2",
-            _ => name.as_str(),
+            x => x,
         };
         sym::var(new_name)
     }

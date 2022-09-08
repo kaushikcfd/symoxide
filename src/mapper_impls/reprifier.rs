@@ -2,25 +2,17 @@ use crate::mappers::fold::FoldMapperWithContext;
 use crate::mappers::CachedMapper;
 use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
+use crate::CachedMapper;
 use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
 
 // TODO: Use Cached Mapper here?
 
+#[derive(CachedMapper)]
 pub struct Reprifier {
     truncation_level: u32,
     cache: HashMap<(ExpressionRawPointer, u32), String>,
-}
-
-impl CachedMapper<(ExpressionRawPointer, u32), String> for Reprifier {
-    fn query_cache(&self, key: &(ExpressionRawPointer, u32)) -> Option<&String> {
-        self.cache.get(key)
-    }
-
-    fn add_to_cache(&mut self, key: (ExpressionRawPointer, u32), value: String) {
-        self.cache.insert(key, value);
-    }
 }
 
 impl FoldMapperWithContext for Reprifier {

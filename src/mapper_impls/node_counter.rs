@@ -22,22 +22,15 @@ use crate::mappers::walk::WalkMapper;
 use crate::mappers::CachedMapper;
 use crate::primitives::Expression;
 use crate::utils::ExpressionRawPointer;
+use crate::CachedMapper;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+#[derive(CachedMapper)]
 struct NodeCounter {
     num_nodes: u32,
 
     cache: HashMap<ExpressionRawPointer, bool>,
-}
-
-impl CachedMapper<ExpressionRawPointer, bool> for NodeCounter {
-    fn query_cache(&self, key: &ExpressionRawPointer) -> Option<&bool> {
-        self.cache.get(&key)
-    }
-    fn add_to_cache(&mut self, key: ExpressionRawPointer, value: bool) {
-        self.cache.insert(key, value);
-    }
 }
 
 impl WalkMapper for NodeCounter {

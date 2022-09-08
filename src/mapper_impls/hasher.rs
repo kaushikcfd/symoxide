@@ -2,11 +2,13 @@ use crate::mappers::fold::FoldMapper;
 use crate::mappers::CachedMapper;
 use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
+use crate::CachedMapper;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::hash::Hasher;
 use std::rc::Rc;
 
+#[derive(CachedMapper)]
 pub struct HashCacher {
     cache: HashMap<ExpressionRawPointer, u64>,
 }
@@ -21,15 +23,6 @@ impl HashCacher {
                                    "invalid HashCacher instance."),
                            key),
         }
-    }
-}
-
-impl CachedMapper<ExpressionRawPointer, u64> for HashCacher {
-    fn query_cache(&self, key: &ExpressionRawPointer) -> Option<&u64> {
-        self.cache.get(&key)
-    }
-    fn add_to_cache(&mut self, key: ExpressionRawPointer, value: u64) {
-        self.cache.insert(key, value);
     }
 }
 
