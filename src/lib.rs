@@ -18,25 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! Symoxide provides an Intermediate Representation for Scalar Expressions and abstract visitors
-//! (called as mappers) for traversing and transforming these expressions.
+//! Symoxide provides an Intermediate Representation for Scalar Expressions and
+//! abstract visitors (called as mappers) for traversing and transforming these
+//! expressions.
 //!
 //! - [`primitives`] contains the supported expression types.
 //! - [`builders`] contains routines to build these expressions.
 //! - [`mod@parse`] contains a parser implementation for these expressions.
-//! - [`operations`] provides routines for performing common arithmetic operations on these
+//! - [`operations`] provides routines for performing common arithmetic
+//!   operations on these
 //! expressions.
-//! - [`mappers`] provides abstract visitor for common traversal patters over scalar expressions.
-//! - [`mapper_impls`] uses [`mappers`] to provide helpful analysis tools over the expressions.
-//! - [`design_doc`] goes over the key design decisions that were baked into Symoxide's
+//! - [`mappers`] provides abstract visitor for common traversal patters over
+//!   scalar expressions.
+//! - [`mapper_impls`] uses [`mappers`] to provide helpful analysis tools over
+//!   the expressions.
+//! - [`design_doc`] goes over the key design decisions that were baked into
+//!   Symoxide's
 //! architecture.
 
 pub mod builders;
+pub mod design_doc;
 pub mod display;
 pub mod macros;
 pub mod mapper_impls;
 pub mod mappers;
-pub mod design_doc;
 pub mod operations;
 pub mod parse;
 pub mod primitives;

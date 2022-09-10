@@ -1,4 +1,4 @@
-use symoxide::{parse, get_dependencies};
+use symoxide::{get_dependencies, parse};
 
 fn main() {
     let expr = parse("x + y + (x+z)");

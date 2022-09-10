@@ -4,8 +4,9 @@ SymOxide has taken many design decisions from
 [Pymbolic](https://github.com/inducer/pymbolic) and could be called as
 Rust-rewrite of Pymbolic.
 
-Symoxide does indeed lead to faster expression traversals (with upto 20x
-speedups) with similar LOCs in the downstream.
+Symoxide does indeed lead to [faster expression
+traversals](https://gist.github.com/kaushikcfd/74c442a075557dad466cd3daea9c151f)
+with similar LOCs in the downstream.
 
 
 ### Links
