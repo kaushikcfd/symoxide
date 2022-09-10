@@ -48,7 +48,6 @@ pub mod primitives;
 mod utils;
 
 pub use builders::var;
-pub use macro_defs::{scalar, variables, CachedMapper};
 pub use mapper_impls::deduplicator::deduplicate_nodes;
 pub use mapper_impls::dependency::get_dependencies;
 pub use mapper_impls::equality::are_structurally_equal;
@@ -57,4 +56,5 @@ pub use mapper_impls::hasher::get_hasher;
 pub use mapper_impls::node_counter::get_num_nodes;
 pub use parse::parse_expr as parse;
 pub use primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+pub use symoxide_macros::{scalar, variables, CachedMapper};
 pub use utils::ExpressionRawPointer;

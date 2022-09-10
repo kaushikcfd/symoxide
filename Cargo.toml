@@ -20,6 +20,6 @@ lalrpop = "0.19.8"
 lalrpop-util = "0.19.8"
 lazy_static = "1.4.0"
 log = "0.4.17"
-macro_defs = { path = "./macro_defs", version = "0.1.0" }
+symoxide_macros = "0.1.0"
 pytools-rs = "0.1.1"
 regex = "1.6.0"
