@@ -34,7 +34,7 @@
 - [X] Implement Bitwise Operators
 - [X] Implement Cached variants of mappers
 - [ ] Implement out sub-language as the `eval!` macro
-- [ ] Add Continuous Integration
+- [X] Add Continuous Integration
 - [ ] StringifyMapper as Display and Repr for Debug.
 - [X] Repr should truncate results with ~(...)~.
 - [X] ~expression_trees~ is a terrible name, probably rename it to something else?
@@ -42,5 +42,4 @@
 - [ ] Implement ~scalars!()~ which is similar to ~variables!~.
 - [ ] Start working on a design doc
 - [X] Visualize to graphviz
-- [ ] Fix graphvix error detection.
-- [ ] Make public
+- [X] Fix graphvix error detection.
