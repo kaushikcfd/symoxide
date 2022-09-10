@@ -20,7 +20,7 @@
 
 use crate::mappers::fold::FoldMapper;
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
 use pytools_rs::{
@@ -78,7 +78,7 @@ fn pprint_uop(op: &UnaryOpType) -> &str {
 impl FoldMapper for Graphvizifier {
     type Output = String;
 
-    fn map_scalar(&mut self, value: &ScalarT) -> Self::Output {
+    fn map_scalar(&mut self, value: &LiteralT) -> Self::Output {
         let node_name = self.vng.get("expr");
         self.node_descrs
             .push(format!("{} [label=\"{}\"]", node_name, value));

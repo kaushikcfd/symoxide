@@ -1,5 +1,5 @@
 use symoxide::mappers::walk::UncachedWalkMapper;
-use symoxide::{add, variables};
+use symoxide::parse;
 
 struct MyWalkMapper;
 
@@ -10,8 +10,7 @@ impl UncachedWalkMapper for MyWalkMapper {
 }
 
 fn main() {
-    let (x, y, z) = variables!("x y z");
-    let expr = add(&add(&x, &y), &z);
+    let expr = parse("x + y + z");
 
     let var_visitor = MyWalkMapper {};
     var_visitor.visit(&expr);

@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -62,7 +62,7 @@ impl EqualityMapper {
         }
     }
 
-    fn map_scalar(&self, value: ScalarT, expr2: Rc<Expression>) -> bool {
+    fn map_scalar(&self, value: LiteralT, expr2: Rc<Expression>) -> bool {
         match *expr2 {
             Expression::Scalar(value2) => value == value2,
             _ => false,

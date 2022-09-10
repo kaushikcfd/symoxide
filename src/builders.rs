@@ -25,7 +25,7 @@ use std::rc::Rc;
 /// Instantiate a new `Variable`
 ///
 /// # Example
-/// ```
+/// ```rust
 /// use symoxide::var;
 ///
 /// let x = var("x");

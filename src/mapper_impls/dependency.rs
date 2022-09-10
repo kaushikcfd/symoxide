@@ -3,7 +3,7 @@ use crate::mappers::CachedMapper;
 use crate::primitives::Expression;
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
-use crate::ScalarT;
+use crate::LiteralT;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
@@ -29,7 +29,7 @@ impl CombineMapper for DependenciesGetter {
         return Rc::new(HashSet::from([name]));
     }
 
-    fn map_scalar(&mut self, _value: &ScalarT) -> Self::Output {
+    fn map_scalar(&mut self, _value: &LiteralT) -> Self::Output {
         Rc::new(HashSet::new())
     }
 }

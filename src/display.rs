@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use std::fmt;
 
 impl fmt::Display for BinaryOpType {
@@ -65,21 +65,21 @@ impl fmt::Display for UnaryOpType {
     }
 }
 
-impl fmt::Display for ScalarT {
+impl fmt::Display for LiteralT {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let val = match self {
-            ScalarT::U8(x) => x.to_string(),
-            ScalarT::U16(x) => x.to_string(),
-            ScalarT::U32(x) => x.to_string(),
-            ScalarT::U64(x) => x.to_string(),
+            LiteralT::U8(x) => x.to_string(),
+            LiteralT::U16(x) => x.to_string(),
+            LiteralT::U32(x) => x.to_string(),
+            LiteralT::U64(x) => x.to_string(),
 
-            ScalarT::I8(x) => x.to_string(),
-            ScalarT::I16(x) => x.to_string(),
-            ScalarT::I32(x) => x.to_string(),
-            ScalarT::I64(x) => x.to_string(),
+            LiteralT::I8(x) => x.to_string(),
+            LiteralT::I16(x) => x.to_string(),
+            LiteralT::I32(x) => x.to_string(),
+            LiteralT::I64(x) => x.to_string(),
 
-            ScalarT::F32(x) => x.to_string(),
-            ScalarT::F64(x) => x.to_string(),
+            LiteralT::F32(x) => x.to_string(),
+            LiteralT::F64(x) => x.to_string(),
         };
         write!(f, "{}", val)
     }
@@ -123,21 +123,21 @@ impl fmt::Display for Expression {
     }
 }
 
-impl fmt::Debug for ScalarT {
+impl fmt::Debug for LiteralT {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let val = match self {
-            ScalarT::U8(x) => format!("U8({})", x),
-            ScalarT::U16(x) => format!("U16({})", x),
-            ScalarT::U32(x) => format!("U32({})", x),
-            ScalarT::U64(x) => format!("U64({})", x),
+            LiteralT::U8(x) => format!("U8({})", x),
+            LiteralT::U16(x) => format!("U16({})", x),
+            LiteralT::U32(x) => format!("U32({})", x),
+            LiteralT::U64(x) => format!("U64({})", x),
 
-            ScalarT::I8(x) => format!("I8({})", x),
-            ScalarT::I16(x) => format!("I16({})", x),
-            ScalarT::I32(x) => format!("I32({})", x),
-            ScalarT::I64(x) => format!("I64({})", x),
+            LiteralT::I8(x) => format!("I8({})", x),
+            LiteralT::I16(x) => format!("I16({})", x),
+            LiteralT::I32(x) => format!("I32({})", x),
+            LiteralT::I64(x) => format!("I64({})", x),
 
-            ScalarT::F32(x) => format!("F32({})", x),
-            ScalarT::F64(x) => format!("F64({})", x),
+            LiteralT::F32(x) => format!("F32({})", x),
+            LiteralT::F64(x) => format!("F64({})", x),
         };
         write!(f, "{}", val)
     }

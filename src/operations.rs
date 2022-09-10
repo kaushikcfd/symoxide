@@ -61,12 +61,15 @@ define_binary_op!(not_equal, GreaterEqual);
 define_binary_op!(left_shift, LeftShift);
 define_binary_op!(right_shift, RightShift);
 
+/// Returns an [`Expression::Subscript`] with the expression `agg` indexed into via
+/// with the indices `indices`.
 pub fn index<T: IntoIterator<Item = Rc<Expression>>>(agg: Rc<Expression>, indices: T)
                                                      -> Rc<Expression> {
     let vec_indices = indices.into_iter().collect();
     Rc::new(Expression::Subscript(agg.clone(), vec_indices))
 }
 
+/// Returns an [`Expression::If`] expression.
 pub fn ifthenelse(cond: Rc<Expression>, then: Rc<Expression>, else_: Rc<Expression>)
                   -> Rc<Expression> {
     Rc::new(Expression::If(cond.clone(), then.clone(), else_.clone()))

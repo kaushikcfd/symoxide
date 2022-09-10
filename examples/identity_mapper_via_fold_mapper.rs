@@ -1,14 +1,13 @@
 use std::rc::Rc;
 use symoxide::mappers::fold::UncachedFoldMapper as FoldMapper;
-use symoxide::{add, variables};
-use symoxide::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use symoxide::{parse, BinaryOpType, Expression, LiteralT, UnaryOpType};
 
 struct Renamer;
 
 impl FoldMapper for Renamer {
     type Output = Rc<Expression>;
 
-    fn map_scalar(&self, expr: &ScalarT) -> Rc<Expression> {
+    fn map_scalar(&self, expr: &LiteralT) -> Rc<Expression> {
         return Rc::new(Expression::Scalar(expr.clone()));
     }
 
@@ -52,9 +51,8 @@ impl FoldMapper for Renamer {
 
 fn main() {
     let renamer = Renamer {};
-    let (x, y) = variables!("x y");
 
-    let xpy = add(&x, &y);
+    let xpy = parse("x + y");
     let xpy_renamed = renamer.visit(&xpy);
     println!("Old expr = {}", xpy);
     println!("New expr = {}", xpy_renamed);

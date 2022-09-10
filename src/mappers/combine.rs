@@ -20,7 +20,7 @@
 
 use crate::mappers::CachedMapper;
 use crate::utils::ExpressionRawPointer;
-use crate::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use std::rc::Rc;
 
 // {{{ UncachedCombineMapper
@@ -42,7 +42,7 @@ pub trait UnachedCombineMapper: Sized {
         }
     }
 
-    fn map_scalar(&self, value: &ScalarT) -> Self::Output;
+    fn map_scalar(&self, value: &LiteralT) -> Self::Output;
     fn map_variable(&self, name: String) -> Self::Output;
 
     fn map_unary_op(&self, _op: UnaryOpType, x: &Expression) -> Self::Output {
@@ -92,7 +92,7 @@ pub trait CombineMapperWithContext: Sized {
     }
 
     fn map_variable(&self, name: String, context: &Self::Context) -> Self::Output;
-    fn map_scalar(&self, value: &ScalarT, context: &Self::Context) -> Self::Output;
+    fn map_scalar(&self, value: &LiteralT, context: &Self::Context) -> Self::Output;
 
     fn map_binary_op(&self, left: &Expression, _op: BinaryOpType, right: &Expression,
                      context: &Self::Context)
@@ -159,7 +159,7 @@ pub trait CombineMapper: Sized + CachedMapper<ExpressionRawPointer, Self::Output
         }
     }
 
-    fn map_scalar(&mut self, value: &ScalarT) -> Self::Output;
+    fn map_scalar(&mut self, value: &LiteralT) -> Self::Output;
     fn map_variable(&mut self, name: String) -> Self::Output;
 
     fn map_unary_op(&mut self, _op: UnaryOpType, x: &Rc<Expression>) -> Self::Output {

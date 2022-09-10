@@ -20,7 +20,7 @@
 
 use crate::mappers::CachedMapper;
 use crate::utils::ExpressionRawPointer;
-use crate::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use std::rc::Rc;
 
 // {{{ IdentityMapper
@@ -46,7 +46,7 @@ pub trait IdentityMapper: CachedMapper<ExpressionRawPointer, Rc<Expression>> {
         }
     }
 
-    fn map_scalar(&mut self, value: &ScalarT) -> Rc<Expression> {
+    fn map_scalar(&mut self, value: &LiteralT) -> Rc<Expression> {
         Rc::new(Expression::Scalar(value.clone()))
     }
 
@@ -101,7 +101,7 @@ pub trait UncachedIdentityMapper {
         }
     }
 
-    fn map_scalar(&self, value: &ScalarT) -> Rc<Expression> {
+    fn map_scalar(&self, value: &LiteralT) -> Rc<Expression> {
         Rc::new(Expression::Scalar(value.clone()))
     }
 
@@ -153,7 +153,7 @@ pub trait IdentityMapperWithContext {
         }
     }
 
-    fn map_scalar(&self, value: &ScalarT, _context: &Self::Context) -> Rc<Expression> {
+    fn map_scalar(&self, value: &LiteralT, _context: &Self::Context) -> Rc<Expression> {
         Rc::new(Expression::Scalar(value.clone()))
     }
 
@@ -226,7 +226,7 @@ pub trait IdentityMapperWithCustomCacheKey: CachedMapper<Self::CacheKey, Rc<Expr
         }
     }
 
-    fn map_scalar(&mut self, value: &ScalarT) -> Rc<Expression> {
+    fn map_scalar(&mut self, value: &LiteralT) -> Rc<Expression> {
         Rc::new(Expression::Scalar(value.clone()))
     }
 

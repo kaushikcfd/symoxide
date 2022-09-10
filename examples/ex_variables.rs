@@ -1,6 +1,7 @@
-use symoxide::{add, variables};
+use symoxide::variables;
+use symoxide::operations as ops;
 
 fn main() {
     let (x, y) = variables!("x y");
-    println!("{}", add(&x, &y));
+    println!("{}", ops::add(&x, &y));
 }

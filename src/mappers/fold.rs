@@ -1,5 +1,5 @@
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use std::rc::Rc;
 
@@ -28,7 +28,7 @@ pub trait FoldMapper: CachedMapper<ExpressionRawPointer, Self::Output> {
         }
     }
 
-    fn map_scalar(&mut self, value: &ScalarT) -> Self::Output;
+    fn map_scalar(&mut self, value: &LiteralT) -> Self::Output;
     fn map_variable(&mut self, name: String) -> Self::Output;
     fn map_unary_op(&mut self, op: UnaryOpType, x: &Rc<Expression>) -> Self::Output;
     fn map_binary_op(&mut self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>)
@@ -59,7 +59,7 @@ pub trait UncachedFoldMapper {
         }
     }
 
-    fn map_scalar(&self, value: &ScalarT) -> Self::Output;
+    fn map_scalar(&self, value: &LiteralT) -> Self::Output;
     fn map_variable(&self, name: String) -> Self::Output;
     fn map_unary_op(&self, op: UnaryOpType, x: &Expression) -> Self::Output;
     fn map_binary_op(&self, left: &Expression, op: BinaryOpType, right: &Expression)
@@ -89,7 +89,7 @@ pub trait UncachedFoldMapperWithContext {
         }
     }
 
-    fn map_scalar(&self, value: &ScalarT, context: &Self::Context) -> Self::Output;
+    fn map_scalar(&self, value: &LiteralT, context: &Self::Context) -> Self::Output;
     fn map_variable(&self, name: String, context: &Self::Context) -> Self::Output;
     fn map_unary_op(&self, op: UnaryOpType, x: &Expression, context: &Self::Context)
                     -> Self::Output;
@@ -141,7 +141,7 @@ pub trait FoldMapperWithContext: CachedMapper<Self::CacheKey, Self::Output> {
         }
     }
 
-    fn map_scalar(&mut self, value: &ScalarT, context: &Self::Context) -> Self::Output;
+    fn map_scalar(&mut self, value: &LiteralT, context: &Self::Context) -> Self::Output;
     fn map_variable(&mut self, name: String, context: &Self::Context) -> Self::Output;
     fn map_unary_op(&mut self, op: UnaryOpType, x: &Rc<Expression>, context: &Self::Context)
                     -> Self::Output;

@@ -43,6 +43,16 @@ fn parse_variables_string_stream(s: String) -> TokenStream {
     gen.into()
 }
 
+/// Converts a space-delimited string to a tuple of `symoxide::var` calls on individual words.
+///
+/// # Examples
+///
+/// ```rust
+/// use symoxide as s;
+/// let (foo, bar) = s::variables!("foo bar");
+/// assert_eq!(foo, s::var("foo"));
+/// assert_eq!(bar, s::var("bar"));
+/// ```
 #[proc_macro]
 pub fn variables(token_stream: TokenStream) -> TokenStream {
     let item: Result<LitStr> = parse(token_stream);
@@ -53,19 +63,20 @@ pub fn variables(token_stream: TokenStream) -> TokenStream {
 }
 
 
+/// Converts an [`i32`] or [`f64`] literal into an instance of `symoxide::Expression::Scalar`.
 #[proc_macro]
 pub fn scalar(token_stream: TokenStream) -> TokenStream {
     let item: Result<LitInt> = parse(token_stream.clone());
     match item {
         Ok(x) => {
-            let gen = quote! { std::rc::Rc::new(symoxide::Expression::Scalar(symoxide::ScalarT::I32(#x))) };
+            let gen = quote! { std::rc::Rc::new(symoxide::Expression::Scalar(symoxide::LiteralT::I32(#x))) };
             gen.into()
         }
         Err(_) => {
             let item: Result<LitFloat> = parse(token_stream);
             match item {
                 Ok(x) => {
-                    let gen = quote! { std::rc::Rc::new(symoxide::Expression::Scalar(symoxide::ScalarT::F64(#x))) };
+                    let gen = quote! { std::rc::Rc::new(symoxide::Expression::Scalar(symoxide::LiteralT::F64(#x))) };
                     gen.into()
                 }
                 Err(_) => panic!("split! expects a int/float literal.")
@@ -74,7 +85,21 @@ pub fn scalar(token_stream: TokenStream) -> TokenStream {
     }
 }
 
-
+/// Implements the trait `symoxide::mappers::CachedMapper` for a struct. Requires that struct
+/// contains a field named `cache` of type [`std::collections::HashMap`].
+///
+/// # Examples
+/// ```rust
+/// use symoxide as sym;
+/// use symoxide::CachedMapper;
+///
+/// #[derive(sym::CachedMapper)]
+/// struct MyAwesomeMapper {
+///     cache: <sym::ExpressionRawPointer, Rc<sym::Expression>>
+///     //      ^--- cache key type         ^
+///     //                                  |--- MyAwesomeMapper's output type
+/// }
+/// ```
 #[proc_macro_derive(CachedMapper)]
 pub fn derive_cached_mapper(input: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(input);

@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use std::rc::Rc;
 
@@ -47,7 +47,7 @@ pub trait UncachedWalkMapper {
         }
     }
 
-    fn map_scalar(&self, _value: &ScalarT) {}
+    fn map_scalar(&self, _value: &LiteralT) {}
 
     fn map_variable(&self, _name: String) {}
 
@@ -109,7 +109,7 @@ pub trait WalkMapperWithContext {
         }
     }
 
-    fn map_scalar(&self, _value: &ScalarT, _context: &Self::Context) {}
+    fn map_scalar(&self, _value: &LiteralT, _context: &Self::Context) {}
 
     fn map_variable(&self, _name: String, _context: &Self::Context) {}
 
@@ -181,7 +181,7 @@ pub trait WalkMapper: CachedMapper<ExpressionRawPointer, bool> {
         }
     }
 
-    fn map_scalar(&mut self, _value: &ScalarT) {}
+    fn map_scalar(&mut self, _value: &LiteralT) {}
 
     fn map_variable(&mut self, _name: String) {}
 

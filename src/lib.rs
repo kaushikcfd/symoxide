@@ -18,13 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//! Symoxide provides an Intermediate Representation for Scalar Expressions and abstract visitors
+//! (called as mappers) for traversing and transforming these expressions.
+//!
+//! - [`primitives`] contains the supported expression types.
+//! - [`builders`] contains routines to build these expressions.
+//! - [`mod@parse`] contains a parser implementation for these expressions.
+//! - [`operations`] provides routines for performing common arithmetic operations on these
+//! expressions.
+//! - [`mappers`] provides abstract visitor for common traversal patters over scalar expressions.
+//! - [`mapper_impls`] uses [`mappers`] to provide helpful analysis tools over the expressions.
+//! - [`design_doc`] goes over the key design decisions that were baked into Symoxide's
+//! architecture.
+
 pub mod builders;
 pub mod display;
 pub mod macros;
 pub mod mapper_impls;
 pub mod mappers;
+pub mod design_doc;
 pub mod operations;
-mod parse;
+pub mod parse;
 pub mod primitives;
 mod utils;
 
@@ -36,7 +50,6 @@ pub use mapper_impls::equality::are_structurally_equal;
 pub use mapper_impls::graphvizifier::show_dot;
 pub use mapper_impls::hasher::get_hasher;
 pub use mapper_impls::node_counter::get_num_nodes;
-pub use operations::{add, div, mul};
 pub use parse::parse_expr as parse;
-pub use primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+pub use primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 pub use utils::ExpressionRawPointer;

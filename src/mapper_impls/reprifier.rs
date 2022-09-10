@@ -1,6 +1,6 @@
 use crate::mappers::fold::FoldMapperWithContext;
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
 use std::collections::HashMap;
@@ -24,7 +24,7 @@ impl FoldMapperWithContext for Reprifier {
         (ExpressionRawPointer(expr.clone()), *context)
     }
 
-    fn map_scalar(&mut self, value: &ScalarT, level: &Self::Context) -> Self::Output {
+    fn map_scalar(&mut self, value: &LiteralT, level: &Self::Context) -> Self::Output {
         if *level < self.truncation_level {
             format!("{:?}", value)
         } else {

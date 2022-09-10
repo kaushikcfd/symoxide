@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::primitives::{Expression, BinaryOpType, UnaryOpType, ScalarT};
+use crate::primitives::{Expression, BinaryOpType, UnaryOpType, LiteralT};
 use std::rc::Rc;
 use std::str::FromStr;
 
@@ -118,8 +118,8 @@ AtomExpr: Rc<Expression> = {
     <agg: AtomExpr> "[" <commaed_exprs: CommaedExprsFinal> "]"  => Rc::new(Expression::Subscript(agg.clone(), commaed_exprs)),
     <agg: AtomExpr> "["  "]"                                    => Rc::new(Expression::Subscript(agg.clone(), vec![])),
     "(" <expr: Expr> ")"                                        => expr,
-    <int_literal: IntLiteral>                                   => Rc::new(Expression::Scalar(ScalarT::I32(int_literal))),
-    <float_literal: FloatLiteral>                               => Rc::new(Expression::Scalar(ScalarT::F64(float_literal))),
+    <int_literal: IntLiteral>                                   => Rc::new(Expression::Scalar(LiteralT::I32(int_literal))),
+    <float_literal: FloatLiteral>                               => Rc::new(Expression::Scalar(LiteralT::F64(float_literal))),
 };
 
 CommaedExprs: Vec<Rc<Expression>> = {

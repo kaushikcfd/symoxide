@@ -21,6 +21,8 @@
 #[macro_export]
 macro_rules! define_binary_op {
     ($fnName: ident, $exprName: ident) => {
+        /// Returns the corresponding [`Expression::BinaryOp`] over the operands
+        /// that are of type [`ConvertibleToExpr`](`crate::operations::ConvertibleToExpr`).
         pub fn $fnName(x1: &dyn $crate::operations::ConvertibleToExpr,
                        x2: &dyn $crate::operations::ConvertibleToExpr)
                        -> std::rc::Rc<$crate::primitives::Expression> {
@@ -38,19 +40,19 @@ macro_rules! define_binary_op {
 
 #[macro_export]
 macro_rules! rust_ty_to_scalar_type {
-    (i8) => {$crate::primitives::ScalarT::I8};
-    (i16) => {$crate::primitives::ScalarT::I16};
-    (i32) => {$crate::primitives::ScalarT::I32};
-    (i64) => {$crate::primitives::ScalarT::I64};
+    (i8) => {$crate::primitives::LiteralT::I8};
+    (i16) => {$crate::primitives::LiteralT::I16};
+    (i32) => {$crate::primitives::LiteralT::I32};
+    (i64) => {$crate::primitives::LiteralT::I64};
 
-    (u8) => {$crate::primitives::ScalarT::U8};
-    (u16) => {$crate::primitives::ScalarT::U16};
-    (u32) => {$crate::primitives::ScalarT::U32};
-    (u64) => {$crate::primitives::ScalarT::U64};
+    (u8) => {$crate::primitives::LiteralT::U8};
+    (u16) => {$crate::primitives::LiteralT::U16};
+    (u32) => {$crate::primitives::LiteralT::U32};
+    (u64) => {$crate::primitives::LiteralT::U64};
 
 
-    (f32) => {$crate::primitives::ScalarT::F32};
-    (f64) => {$crate::primitives::ScalarT::F64};
+    (f32) => {$crate::primitives::LiteralT::F32};
+    (f64) => {$crate::primitives::LiteralT::F64};
 }
 
 

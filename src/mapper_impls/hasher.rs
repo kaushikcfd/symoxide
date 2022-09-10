@@ -1,6 +1,6 @@
 use crate::mappers::fold::FoldMapper;
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, ScalarT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
 use std::collections::hash_map::DefaultHasher;
@@ -29,7 +29,7 @@ impl HashCacher {
 impl FoldMapper for HashCacher {
     type Output = u64;
 
-    fn map_scalar(&mut self, value: &ScalarT) -> Self::Output {
+    fn map_scalar(&mut self, value: &LiteralT) -> Self::Output {
         let mut hasher = DefaultHasher::new();
         let cache_key = format!("{}", value);
         hasher.write(cache_key.as_bytes());
