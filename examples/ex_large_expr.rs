@@ -110,5 +110,5 @@ fn main() {
         let mut renamer = Renamer { cache: HashMap::new() };
         let _new_expr = renamer.visit(expr.clone());
     }
-    println!("Took: {:?} secs", t_start.elapsed());
+    println!("Took: {:?}", t_start.elapsed());
 }

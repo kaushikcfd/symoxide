@@ -18,5 +18,5 @@ lalrpop-util = "0.19.8"
 lazy_static = "1.4.0"
 log = "0.4.17"
 macro_defs = { path = "./macro_defs" }
-pytools-rs = { path = "./pytools-rs" }
+pytools-rs = "0.1.1"
 regex = "1.6.0"
