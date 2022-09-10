@@ -3,6 +3,7 @@ name = "symoxide"
 version = "0.1.0"
 authors = ["Kaushik Kulkarni <kaushikcfd@gmail.com>"]
 edition = "2021"
+description = "Intermediate Representation and Transformations for Computer Algebra Systems"
 documentation = "https://docs.rs/symoxide"
 license = "MIT"
 readme = "README.md"
