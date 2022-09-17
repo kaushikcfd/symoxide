@@ -5,3 +5,4 @@ pub mod graphvizifier;
 pub mod hasher;
 pub mod node_counter;
 pub mod reprifier;
+pub mod stringifier;
