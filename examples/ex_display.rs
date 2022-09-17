@@ -1,9 +1,14 @@
-use symoxide::operations as ops;
-use symoxide::variables;
+use symoxide::parse;
 
 fn main() {
-    let (x, y, z) = variables!("x y z");
-
-    println!("{}", ops::add(&x, &y));
-    println!("{}", ops::add(&x, &z));
+    let expr = parse("a+b*c");
+    println!("{}", expr);
+    let expr = parse("(a+b)*c");
+    println!("{}", expr);
+    let expr = parse("a+b+c");
+    println!("{}", expr);
+    let expr = parse("a+(b+c)");
+    println!("{}", expr);
+    let expr = parse("(a+b)+3.14");
+    println!("{}", expr);
 }

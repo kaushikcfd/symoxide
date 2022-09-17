@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::{BinaryOpType, LiteralT, UnaryOpType};
 use std::fmt;
 
 impl fmt::Display for BinaryOpType {
@@ -82,44 +82,6 @@ impl fmt::Display for LiteralT {
             LiteralT::F64(x) => x.to_string(),
         };
         write!(f, "{}", val)
-    }
-}
-
-impl fmt::Display for Expression {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Expression::Scalar(s) => write!(f, "{}", s),
-            Expression::Variable(name) => write!(f, "Variable(\"{}\")", name),
-            Expression::UnaryOp(op, x) => write!(f, "{}{}", op, x),
-            Expression::BinaryOp(l, op, r) => write!(f, "{}({}, {})", op, l, r),
-            Expression::Call(call, params) => {
-                let mut param_str = format!("");
-                // TODO: Make it functional. Couldn't find a neater way using fold.
-                for (iparam, param) in params.iter().enumerate() {
-                    param_str = if iparam == 0 {
-                        format!("{}", param)
-                    } else {
-                        format!("{}, {}", param_str, param)
-                    };
-                }
-
-                write!(f, "Call({},[{}])", call, param_str)
-            }
-            Expression::Subscript(aggregate, indices) => {
-                let mut idx_str = format!("");
-                // TODO: Make it functional. Couldn't find a neater way using fold.
-                for (i_idx, idx) in indices.iter().enumerate() {
-                    idx_str = if i_idx == 0 {
-                        format!("{}", idx)
-                    } else {
-                        format!("{}, {}", idx_str, idx)
-                    };
-                }
-
-                write!(f, "Subscript({},[{}])", aggregate, idx_str)
-            }
-            Expression::If(cond, then, else_) => write!(f, "If({}, {}, {})", cond, then, else_),
-        }
     }
 }
 
