@@ -109,3 +109,24 @@ fn test_deduplicator() {
     assert_eq!(sym::get_num_nodes(&expr), 15);
     assert_eq!(sym::get_num_nodes(&deduped_expr), 11);
 }
+
+fn assert_parse_roundtrip(code: &str) {
+    let expr = parse(code);
+    assert_eq!(expr, parse(format!("{}", expr)));
+}
+
+#[test]
+fn test_stringify_parse_are_inverses() {
+    assert_parse_roundtrip("g[i, k] + 2.1*h[i, k]");
+    assert_parse_roundtrip("a - b - c");
+    assert_parse_roundtrip("-a - -b - -c");
+    assert_parse_roundtrip("- - - a - - - - b - - - - - c");
+    assert_parse_roundtrip("~(a ^ b)");
+    assert_parse_roundtrip("(a | b) | ~(~a & ~b)");
+    assert_parse_roundtrip("3 << 1");
+    assert_parse_roundtrip("1 >> 3");
+    // Requires tuple expression types -->
+    // assert_parse_roundtrip("f((x,y),z)");
+    // assert_parse_roundtrip("f((x,),z)");
+    // assert_parse_roundtrip("f(x,(y,z),z)");
+}
