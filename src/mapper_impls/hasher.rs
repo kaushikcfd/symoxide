@@ -3,8 +3,8 @@ use crate::mappers::CachedMapper;
 use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
+use hashbrown::HashMap;
 use std::collections::hash_map::DefaultHasher;
-use std::collections::HashMap;
 use std::hash::Hasher;
 use std::rc::Rc;
 

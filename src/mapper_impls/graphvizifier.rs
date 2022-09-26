@@ -23,10 +23,10 @@ use crate::mappers::CachedMapper;
 use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
+use hashbrown::HashMap;
 use pytools_rs::{
     make_unique_name_gen, show_dot as show_dot_code, ConvertibleToDotOutputT, UniqueNameGenerator,
 };
-use std::collections::HashMap;
 use std::rc::Rc;
 
 #[derive(CachedMapper)]

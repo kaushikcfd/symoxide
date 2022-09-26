@@ -3,7 +3,7 @@ use crate::mappers::CachedMapper;
 use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::fmt;
 use std::rc::Rc;
 
