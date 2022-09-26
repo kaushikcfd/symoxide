@@ -20,7 +20,7 @@
 
 use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::rc::Rc;
 
 struct EqualityMapper {

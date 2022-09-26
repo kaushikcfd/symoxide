@@ -23,7 +23,7 @@ use crate::mappers::CachedMapper;
 use crate::primitives::Expression;
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::rc::Rc;
 
 #[derive(CachedMapper)]

@@ -22,7 +22,7 @@ use crate::mapper_impls::hasher::{get_hasher, HashCacher};
 use crate::mappers::identity::IdentityMapperWithCustomCacheKey;
 use crate::mappers::CachedMapper;
 use crate::{CachedMapper, Expression};
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
