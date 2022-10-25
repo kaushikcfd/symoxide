@@ -1,6 +1,6 @@
 use crate::mappers::fold::FoldMapperWithContext;
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
 use hashbrown::HashMap;
@@ -134,13 +134,13 @@ impl FoldMapperWithContext for Stringifier {
         guard_with_paren(my_str, my_prec, outer_prec)
     }
 
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>,
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT,
                 _outer_prec: &Self::Context)
                 -> Self::Output {
         let rec_str: Vec<String> = params.iter().map(|x| self.visit(x, &PREC_ATOM)).collect();
         format!("{}({})", self.visit(call, &PREC_ATOM), rec_str.join(", "))
     }
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>,
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT,
                      _outer_prec: &Self::Context)
                      -> Self::Output {
         let rec_str: Vec<String> = indices.iter().map(|x| self.visit(x, &PREC_ATOM)).collect();

@@ -20,7 +20,7 @@
 
 use crate::mappers::fold::FoldMapper;
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
 use hashbrown::HashMap;
@@ -114,7 +114,7 @@ impl FoldMapper for Graphvizifier {
             .push(format!("{} -> {}", right_node_name, node_name));
         node_name.to_string()
     }
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Self::Output {
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT) -> Self::Output {
         let node_name = self.vng.get("expr");
         let call_node_name = self.visit(call);
         let params_strs: Vec<String> = params.iter()
@@ -135,8 +135,7 @@ impl FoldMapper for Graphvizifier {
         }
         node_name.to_string()
     }
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
-                     -> Self::Output {
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT) -> Self::Output {
         let node_name = self.vng.get("expr");
         let indices_strs: Vec<String> = indices.iter()
                                                .enumerate()

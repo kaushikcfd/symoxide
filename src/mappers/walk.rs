@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use std::rc::Rc;
 
@@ -60,14 +60,14 @@ pub trait UncachedWalkMapper {
         self.visit(right);
     }
 
-    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>) {
+    fn map_call(&self, call: &Expression, params: &SmallVecExprT) {
         self.visit(call);
         for param in params {
             self.visit(param);
         }
     }
 
-    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>) {
+    fn map_subscript(&self, agg: &Expression, indices: &SmallVecExprT) {
         self.visit(agg);
         for idx in indices {
             self.visit(idx);
@@ -123,15 +123,14 @@ pub trait WalkMapperWithContext {
         self.visit(right, context);
     }
 
-    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>, context: &Self::Context) {
+    fn map_call(&self, call: &Expression, params: &SmallVecExprT, context: &Self::Context) {
         self.visit(call, context);
         for param in params {
             self.visit(param, context);
         }
     }
 
-    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>,
-                     context: &Self::Context) {
+    fn map_subscript(&self, agg: &Expression, indices: &SmallVecExprT, context: &Self::Context) {
         self.visit(agg, context);
         for idx in indices {
             self.visit(idx, context);
@@ -194,14 +193,14 @@ pub trait WalkMapper: CachedMapper<ExpressionRawPointer, bool> {
         self.visit(right);
     }
 
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) {
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT) {
         self.visit(call);
         for param in params {
             self.visit(param);
         }
     }
 
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>) {
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT) {
         self.visit(agg);
         for idx in indices {
             self.visit(idx);

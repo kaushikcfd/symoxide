@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use symoxide::mappers::fold::UncachedFoldMapper as FoldMapper;
-use symoxide::{parse, BinaryOpType, Expression, LiteralT, UnaryOpType};
+use symoxide::{parse, BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 
 struct Renamer;
 
@@ -31,12 +31,12 @@ impl FoldMapper for Renamer {
         return Rc::new(Expression::UnaryOp(op.clone(), self.visit(x)));
     }
 
-    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>) -> Rc<Expression> {
+    fn map_call(&self, call: &Expression, params: &SmallVecExprT) -> Rc<Expression> {
         let rec_params = params.iter().map(|par| self.visit(par)).collect();
         return Rc::new(Expression::Call(self.visit(call), rec_params));
     }
 
-    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>) -> Rc<Expression> {
+    fn map_subscript(&self, agg: &Expression, indices: &SmallVecExprT) -> Rc<Expression> {
         let rec_indices = indices.iter().map(|idx| self.visit(idx)).collect();
         return Rc::new(Expression::Subscript(self.visit(agg), rec_indices));
     }

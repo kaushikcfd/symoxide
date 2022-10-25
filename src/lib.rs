@@ -55,6 +55,6 @@ pub use mapper_impls::graphvizifier::show_dot;
 pub use mapper_impls::hasher::get_hasher;
 pub use mapper_impls::node_counter::get_num_nodes;
 pub use parse::parse_expr as parse;
-pub use primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+pub use primitives::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 pub use symoxide_macros::{scalar, variables, CachedMapper};
 pub use utils::ExpressionRawPointer;

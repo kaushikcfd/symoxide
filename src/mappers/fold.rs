@@ -1,5 +1,5 @@
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use std::rc::Rc;
 
@@ -33,9 +33,8 @@ pub trait FoldMapper: CachedMapper<ExpressionRawPointer, Self::Output> {
     fn map_unary_op(&mut self, op: UnaryOpType, x: &Rc<Expression>) -> Self::Output;
     fn map_binary_op(&mut self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>)
                      -> Self::Output;
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Self::Output;
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
-                     -> Self::Output;
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT) -> Self::Output;
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT) -> Self::Output;
     fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>)
               -> Self::Output;
 }
@@ -64,8 +63,8 @@ pub trait UncachedFoldMapper {
     fn map_unary_op(&self, op: UnaryOpType, x: &Expression) -> Self::Output;
     fn map_binary_op(&self, left: &Expression, op: BinaryOpType, right: &Expression)
                      -> Self::Output;
-    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>) -> Self::Output;
-    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>) -> Self::Output;
+    fn map_call(&self, call: &Expression, params: &SmallVecExprT) -> Self::Output;
+    fn map_subscript(&self, agg: &Expression, indices: &SmallVecExprT) -> Self::Output;
     fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression) -> Self::Output;
 }
 
@@ -96,10 +95,9 @@ pub trait UncachedFoldMapperWithContext {
     fn map_binary_op(&self, left: &Expression, op: BinaryOpType, right: &Expression,
                      context: &Self::Context)
                      -> Self::Output;
-    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>, context: &Self::Context)
+    fn map_call(&self, call: &Expression, params: &SmallVecExprT, context: &Self::Context)
                 -> Self::Output;
-    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>,
-                     context: &Self::Context)
+    fn map_subscript(&self, agg: &Expression, indices: &SmallVecExprT, context: &Self::Context)
                      -> Self::Output;
     fn map_if(&self, cond: &Expression, then: &Expression, else_: &Expression,
               context: &Self::Context)
@@ -148,10 +146,9 @@ pub trait FoldMapperWithContext: CachedMapper<Self::CacheKey, Self::Output> {
     fn map_binary_op(&mut self, left: &Rc<Expression>, op: BinaryOpType, right: &Rc<Expression>,
                      context: &Self::Context)
                      -> Self::Output;
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>,
-                context: &Self::Context)
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT, context: &Self::Context)
                 -> Self::Output;
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>,
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT,
                      context: &Self::Context)
                      -> Self::Output;
     fn map_if(&mut self, cond: &Rc<Expression>, then: &Rc<Expression>, else_: &Rc<Expression>,

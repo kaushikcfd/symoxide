@@ -18,9 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::primitives::{Expression, BinaryOpType, UnaryOpType, LiteralT};
+use crate::primitives::{Expression, BinaryOpType, UnaryOpType, LiteralT,
+  SmallVecExprT};
 use std::rc::Rc;
 use std::str::FromStr;
+use smallvec::{smallvec};
 
 grammar;
 
@@ -120,9 +122,9 @@ ExponentExpr: Rc<Expression> = {
 AtomExpr: Rc<Expression> = {
     <identifier: Identifier>                                    => Rc::new(Expression::Variable(identifier)),
     <call: AtomExpr> "(" <commaed_exprs: CommaedExprsFinal> ")" => Rc::new(Expression::Call(call.clone(), commaed_exprs)),
-    <call: AtomExpr> "("  ")"                                   => Rc::new(Expression::Call(call.clone(), vec![])),
+    <call: AtomExpr> "("  ")"                                   => Rc::new(Expression::Call(call.clone(), smallvec![])),
     <agg: AtomExpr> "[" <commaed_exprs: CommaedExprsFinal> "]"  => Rc::new(Expression::Subscript(agg.clone(), commaed_exprs)),
-    <agg: AtomExpr> "["  "]"                                    => Rc::new(Expression::Subscript(agg.clone(), vec![])),
+    <agg: AtomExpr> "["  "]"                                    => Rc::new(Expression::Subscript(agg.clone(), smallvec![])),
     "(" <expr: Expr> ")"                                        => expr,
     <int_literal: IntLiteral>                                   => Rc::new(Expression::Scalar(LiteralT::I32(int_literal))),
     <float_literal: FloatLiteral>                               => Rc::new(Expression::Scalar(LiteralT::F64(float_literal))),
@@ -133,9 +135,9 @@ CommaedExprs: Vec<Rc<Expression>> = {
     <expr: Expr>                                               => vec![expr],
 }
 
-CommaedExprsFinal: Vec<Rc<Expression>> = {
-    <commaed_exprs: CommaedExprs>      => commaed_exprs,
-    <commaed_exprs: CommaedExprs> ","  => commaed_exprs,
+CommaedExprsFinal: SmallVecExprT = {
+    <commaed_exprs: CommaedExprs>      => SmallVecExprT::from_vec(commaed_exprs),
+    <commaed_exprs: CommaedExprs> ","  => SmallVecExprT::from_vec(commaed_exprs),
 };
 
 CmpOperator: BinaryOpType = {

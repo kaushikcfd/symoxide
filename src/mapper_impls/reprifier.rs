@@ -1,6 +1,6 @@
 use crate::mappers::fold::FoldMapperWithContext;
 use crate::mappers::CachedMapper;
-use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use crate::CachedMapper;
 use hashbrown::HashMap;
@@ -60,8 +60,7 @@ impl FoldMapperWithContext for Reprifier {
             format!("(...)")
         }
     }
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>,
-                level: &Self::Context)
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT, level: &Self::Context)
                 -> Self::Output {
         if *level < self.truncation_level {
             let new_level: u32 = level + 1;
@@ -80,7 +79,7 @@ impl FoldMapperWithContext for Reprifier {
             format!("(...)")
         }
     }
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>,
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT,
                      level: &Self::Context)
                      -> Self::Output {
         if *level < self.truncation_level {

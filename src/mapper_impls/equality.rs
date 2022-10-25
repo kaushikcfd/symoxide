@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use crate::primitives::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::primitives::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 use crate::utils::ExpressionRawPointer;
 use hashbrown::HashMap;
 use std::rc::Rc;
@@ -95,8 +95,7 @@ impl EqualityMapper {
         }
     }
 
-    fn map_call(&mut self, call: Rc<Expression>, params: &Vec<Rc<Expression>>,
-                expr2: Rc<Expression>)
+    fn map_call(&mut self, call: Rc<Expression>, params: &SmallVecExprT, expr2: Rc<Expression>)
                 -> bool {
         match &*expr2 {
             Expression::Call(call2, params2) => {
@@ -111,7 +110,7 @@ impl EqualityMapper {
             _ => false,
         }
     }
-    fn map_subscript(&mut self, agg: Rc<Expression>, indices: &Vec<Rc<Expression>>,
+    fn map_subscript(&mut self, agg: Rc<Expression>, indices: &SmallVecExprT,
                      expr2: Rc<Expression>)
                      -> bool {
         match &*expr2 {

@@ -20,7 +20,7 @@
 
 use crate::mappers::CachedMapper;
 use crate::utils::ExpressionRawPointer;
-use crate::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 use std::rc::Rc;
 
 // {{{ IdentityMapper
@@ -63,15 +63,14 @@ pub trait IdentityMapper: CachedMapper<ExpressionRawPointer, Rc<Expression>> {
         Rc::new(Expression::BinaryOp(self.visit(left.clone()), op, self.visit(right.clone())))
     }
 
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Rc<Expression> {
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT) -> Rc<Expression> {
         Rc::new(Expression::Call(self.visit(call.clone()),
                                  params.iter()
                                        .map(|param| self.visit(param.clone()))
                                        .collect()))
     }
 
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
-                     -> Rc<Expression> {
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT) -> Rc<Expression> {
         Rc::new(Expression::Subscript(self.visit(agg.clone()),
                                       indices.iter().map(|idx| self.visit(idx.clone())).collect()))
     }
@@ -118,12 +117,12 @@ pub trait UncachedIdentityMapper {
         Rc::new(Expression::BinaryOp(self.visit(left), op, self.visit(right)))
     }
 
-    fn map_call(&self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Rc<Expression> {
+    fn map_call(&self, call: &Rc<Expression>, params: &SmallVecExprT) -> Rc<Expression> {
         Rc::new(Expression::Call(self.visit(call),
                                  params.iter().map(|param| self.visit(param)).collect()))
     }
 
-    fn map_subscript(&self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>) -> Rc<Expression> {
+    fn map_subscript(&self, agg: &Rc<Expression>, indices: &SmallVecExprT) -> Rc<Expression> {
         Rc::new(Expression::Subscript(self.visit(agg),
                                       indices.iter().map(|idx| self.visit(idx)).collect()))
     }
@@ -172,8 +171,7 @@ pub trait IdentityMapperWithContext {
         Rc::new(Expression::BinaryOp(self.visit(left, context), op, self.visit(right, context)))
     }
 
-    fn map_call(&self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>,
-                context: &Self::Context)
+    fn map_call(&self, call: &Rc<Expression>, params: &SmallVecExprT, context: &Self::Context)
                 -> Rc<Expression> {
         Rc::new(Expression::Call(self.visit(call, context),
                                  params.iter()
@@ -181,7 +179,7 @@ pub trait IdentityMapperWithContext {
                                        .collect()))
     }
 
-    fn map_subscript(&self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>,
+    fn map_subscript(&self, agg: &Rc<Expression>, indices: &SmallVecExprT,
                      context: &Self::Context)
                      -> Rc<Expression> {
         Rc::new(Expression::Subscript(self.visit(agg, context),
@@ -243,15 +241,14 @@ pub trait IdentityMapperWithCustomCacheKey: CachedMapper<Self::CacheKey, Rc<Expr
         Rc::new(Expression::BinaryOp(self.visit(left.clone()), op, self.visit(right.clone())))
     }
 
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Rc<Expression> {
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT) -> Rc<Expression> {
         Rc::new(Expression::Call(self.visit(call.clone()),
                                  params.iter()
                                        .map(|param| self.visit(param.clone()))
                                        .collect()))
     }
 
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
-                     -> Rc<Expression> {
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT) -> Rc<Expression> {
         Rc::new(Expression::Subscript(self.visit(agg.clone()),
                                       indices.iter().map(|idx| self.visit(idx.clone())).collect()))
     }

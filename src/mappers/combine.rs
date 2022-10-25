@@ -20,7 +20,7 @@
 
 use crate::mappers::CachedMapper;
 use crate::utils::ExpressionRawPointer;
-use crate::{BinaryOpType, Expression, LiteralT, UnaryOpType};
+use crate::{BinaryOpType, Expression, LiteralT, SmallVecExprT, UnaryOpType};
 use std::rc::Rc;
 
 // {{{ UncachedCombineMapper
@@ -54,12 +54,12 @@ pub trait UnachedCombineMapper: Sized {
         self.combine(&[self.visit(left), self.visit(right)])
     }
 
-    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>) -> Self::Output {
+    fn map_call(&self, call: &Expression, params: &SmallVecExprT) -> Self::Output {
         let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x)).collect();
         self.combine(&[self.visit(call), self.combine(&rec_params)])
     }
 
-    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>) -> Self::Output {
+    fn map_subscript(&self, agg: &Expression, indices: &SmallVecExprT) -> Self::Output {
         let rec_indices: Vec<Self::Output> = indices.iter().map(|x| self.visit(x)).collect();
         self.combine(&[self.visit(agg), self.combine(&rec_indices)])
     }
@@ -105,14 +105,13 @@ pub trait CombineMapperWithContext: Sized {
         self.visit(x, context)
     }
 
-    fn map_call(&self, call: &Expression, params: &Vec<Rc<Expression>>, context: &Self::Context)
+    fn map_call(&self, call: &Expression, params: &SmallVecExprT, context: &Self::Context)
                 -> Self::Output {
         let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x, context)).collect();
         self.combine(&[self.visit(call, context), self.combine(&rec_params)])
     }
 
-    fn map_subscript(&self, agg: &Expression, indices: &Vec<Rc<Expression>>,
-                     context: &Self::Context)
+    fn map_subscript(&self, agg: &Expression, indices: &SmallVecExprT, context: &Self::Context)
                      -> Self::Output {
         let rec_indices: Vec<Self::Output> =
             indices.iter().map(|x| self.visit(x, context)).collect();
@@ -173,15 +172,14 @@ pub trait CombineMapper: Sized + CachedMapper<ExpressionRawPointer, Self::Output
         self.combine(&[l_rec, r_rec])
     }
 
-    fn map_call(&mut self, call: &Rc<Expression>, params: &Vec<Rc<Expression>>) -> Self::Output {
+    fn map_call(&mut self, call: &Rc<Expression>, params: &SmallVecExprT) -> Self::Output {
         let call_rec = self.visit(call);
         let rec_params: Vec<Self::Output> = params.iter().map(|x| self.visit(x)).collect();
         let combined_params = self.combine(&rec_params);
         self.combine(&[call_rec, combined_params])
     }
 
-    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &Vec<Rc<Expression>>)
-                     -> Self::Output {
+    fn map_subscript(&mut self, agg: &Rc<Expression>, indices: &SmallVecExprT) -> Self::Output {
         let agg_rec = self.visit(agg);
         let rec_indices: Vec<Self::Output> = indices.iter().map(|x| self.visit(x)).collect();
         let combined_params = self.combine(&rec_indices);

@@ -18,7 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+use smallvec::SmallVec;
 use std::rc::Rc;
+
+pub type SmallVecExprT = SmallVec<[Rc<Expression>; 4]>;
 
 /// A numeric literal that wraps numeric literals along with their data-type
 /// information.
@@ -57,10 +60,10 @@ pub enum Expression {
     BinaryOp(Rc<Expression>, BinaryOpType, Rc<Expression>),
     /// `Call(fn, args)` represents invoking the expression `fn` with the
     /// arguments `args`.
-    Call(Rc<Expression>, Vec<Rc<Expression>>),
+    Call(Rc<Expression>, SmallVecExprT),
     /// `Subcript(expr, indices)` represents indexing the expression `expr` with
     /// the indices `indices`.
-    Subscript(Rc<Expression>, Vec<Rc<Expression>>),
+    Subscript(Rc<Expression>, SmallVecExprT),
     /// `If(cond, then, else)` represents a ternary operation (AKA if-then-else)
     /// expression.
     If(Rc<Expression>, Rc<Expression>, Rc<Expression>),
@@ -108,3 +111,5 @@ pub enum UnaryOpType {
 }
 
 // }}}
+
+// vim: fdm=marker
